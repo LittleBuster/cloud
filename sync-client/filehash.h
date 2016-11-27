@@ -9,21 +9,38 @@
  * of the Licence, or (at your option) any later version.
  */
 
-#include "app.h"
-#include "log.h"
-#include "configs.h"
-#include "filewatch.h"
-#include <memory>
+#ifndef __FILEHASH_H__
+#define __FILEHASH_H__
+
+#include <string>
+#include <fstream>
 
 using namespace std;
 
 
-int main()
+class IFileHash
 {
-    auto log = make_shared<Log>();
-    auto cfg = make_shared<Configs>();
-    auto fileWatch = make_shared<FileWatch>(log, cfg);
-    auto app = make_shared<App>(log, cfg, fileWatch);
+public:
+    virtual void open(const string &filename)=0;
+    virtual string generate()=0;
+    virtual void close()=0;
+};
 
-    return app->start();
-}
+
+class FileHash
+{
+private:
+    ifstream _file;
+
+    string hashToStr(const unsigned char *hash);
+
+public:
+    void open(const string &filename);
+
+    string generate();
+
+    void close();
+};
+
+
+#endif

@@ -9,21 +9,27 @@
  * of the Licence, or (at your option) any later version.
  */
 
-#include "app.h"
+#ifndef __APP_H__
+#define __APP_H__
+
 #include "log.h"
 #include "configs.h"
 #include "filewatch.h"
-#include <memory>
-
-using namespace std;
 
 
-int main()
+class App
 {
-    auto log = make_shared<Log>();
-    auto cfg = make_shared<Configs>();
-    auto fileWatch = make_shared<FileWatch>(log, cfg);
-    auto app = make_shared<App>(log, cfg, fileWatch);
+private:
+    const shared_ptr<ILog> _log;
+    const shared_ptr<IConfigs> _cfg;
+    const shared_ptr<ITimer> _fw;
 
-    return app->start();
-}
+public:
+    App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
+        const shared_ptr<ITimer> &fw);
+
+    int start();
+};
+
+
+#endif

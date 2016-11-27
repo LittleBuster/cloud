@@ -9,21 +9,40 @@
  * of the Licence, or (at your option) any later version.
  */
 
-#include "app.h"
-#include "log.h"
-#include "configs.h"
-#include "filewatch.h"
-#include <memory>
+#ifndef __TIMER_H__
+#define __TIMER_H__
+
+#include <thread>
+#include <functional>
+
 
 using namespace std;
 
 
-int main()
+class ITimer
 {
-    auto log = make_shared<Log>();
-    auto cfg = make_shared<Configs>();
-    auto fileWatch = make_shared<FileWatch>(log, cfg);
-    auto app = make_shared<App>(log, cfg, fileWatch);
+public:
+    virtual void handler()=0;
+    virtual void start(unsigned delay)=0;
+    virtual void stop()=0;
+};
 
-    return app->start();
-}
+
+class Timer: public ITimer
+{
+private:
+    bool _isOn = false;
+    unsigned _delay;
+
+    void loop();
+
+public:
+    virtual void handler() { }
+
+    void start(unsigned delay);
+
+    void stop();
+};
+
+
+#endif

@@ -18,20 +18,21 @@ using namespace std;
 
 
 typedef struct {
+    string ip;
     unsigned port;
 } ServerCfg;
 
 typedef struct {
-    string ip;
-    unsigned port;
-} ModuleCfg;
+    string path;
+    unsigned interval;
+} SyncCfg;
 
 
 class IConfigs
 {
 public:
     virtual const ServerCfg& getServerCfg(void) const=0;
-    virtual const ModuleCfg& getHouseCfg(void) const=0;
+    virtual const SyncCfg& getSyncCfg(void) const=0;
     virtual void load(const string &filename)=0;
 };
 
@@ -40,7 +41,7 @@ class Configs: public IConfigs
 {
 private:
     ServerCfg sc;
-    ModuleCfg hsc;
+    SyncCfg syc;
 
     string readString(ifstream &is) const;
 
@@ -49,7 +50,7 @@ private:
 public:
     inline const ServerCfg& getServerCfg(void) const { return sc; }
 
-    inline const ModuleCfg& getHouseCfg(void) const { return hsc; }
+    inline const SyncCfg& getSyncCfg(void) const { return syc; }
 
     /**
      * Loading configs from json file

@@ -71,9 +71,10 @@ void Configs::load(const string &filename)
         throw string("File not found.");
 
     try {
+        sc.ip = readString(ifs);
         sc.port = static_cast<unsigned>(readInt(ifs));
-        hsc.ip = readString(ifs);
-        hsc.port = static_cast<unsigned>(readInt(ifs));
+        syc.path = readString(ifs);
+        syc.interval = static_cast<unsigned>(readInt(ifs));
     }
     catch (...) {
         ifs.close();

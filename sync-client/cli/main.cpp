@@ -10,10 +10,10 @@
  */
 
 #include "app.h"
-#include "log.h"
-#include "configs.h"
-#include "filehash.h"
-#include "filewatch.h"
+#include "../log.h"
+#include "../configs.h"
+#include "../filehash.h"
+#include "../filewatch.h"
 
 
 int main()

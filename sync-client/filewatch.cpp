@@ -55,7 +55,7 @@ vector<File> FileWatch::getFileList(const string &path)
     while ((f_cur = readdir(dir)) != NULL) {
         struct stat sbuf;
         File file;
-        string fullPath = path + "/";
+        string fullPath = path + "\\";
 
         file.name = string(f_cur->d_name);
         fullPath += file.name;
@@ -100,7 +100,7 @@ void FileWatch::handler()
     }
 
     for (const File &file : localFiles) {
-        _fhash->open(syc.path + "/" + file.name);
+        _fhash->open(syc.path + "\\" + file.name);
         cout << "[name: " << file.name << "][size: " << file.size << "][last_modify: " << file.modify
              << "][hash: " << _fhash->generate() << "]" << endl;
         _fhash->close();

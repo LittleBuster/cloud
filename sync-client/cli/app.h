@@ -12,9 +12,9 @@
 #ifndef __APP_H__
 #define __APP_H__
 
-#include "log.h"
-#include "configs.h"
-#include "filewatch.h"
+#include "../log.h"
+#include "../configs.h"
+#include "../filewatch.h"
 
 
 class App

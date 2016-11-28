@@ -64,9 +64,9 @@ const string ftoa(float num)
     return buff.str();
 }
 
-size_t pos(const string &str, const char sym)
+int pos(const string &str, const char sym)
 {
-    size_t i = 0;
+    int i = 0;
 
     for (const auto &c : str) {
         if (c == sym)

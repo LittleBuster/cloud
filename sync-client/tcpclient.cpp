@@ -60,7 +60,7 @@ void TcpClient::send(const void *data, size_t len) const
 
 void TcpClient::recv(void *data, size_t len) const
 {
-    size_t bytes;
+    int bytes;
 
     bytes = ::recv(_client, reinterpret_cast<char *>(data), len, 0);
     if ((bytes == 0) || (bytes == SOCKET_ERROR))

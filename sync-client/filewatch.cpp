@@ -10,17 +10,21 @@
  */
 
 #include "filewatch.h"
+#include "ext.h"
 #include <vector>
 #include <ctime>
 #include <fcntl.h>
+#include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <dirent.h>
 #include <unistd.h>
 #include <iostream>
 
 
-FileWatch::FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg):
-                     _log(move(log)), _cfg(move(cfg))
+FileWatch::FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg, const shared_ptr<IFileHash> &fhash):
+                     _log(move(log)), _cfg(move(cfg)), _fhash(move(fhash))
 {
 }
 
@@ -41,48 +45,65 @@ string FileWatch::dateToStr(time_t *time)
 
 vector<File> FileWatch::getFileList(const string &path)
 {
-    int fd;
     DIR *dir;
+    vector<File> localFiles;
     struct dirent *f_cur;
-    vector<File> flist;
 
     if ((dir = opendir(path.c_str())) == NULL)
-        throw string("Can not open directory.");
+        throw string("Fail open path \"" + path + "\"");
 
     while ((f_cur = readdir(dir)) != NULL) {
-        File file;
         struct stat sbuf;
+        File file;
         string fullPath = path + "/";
 
         file.name = string(f_cur->d_name);
         fullPath += file.name;
+
         /*
-         * Ignoring hidden files and up folders
+         * Ignoring hidden files and prev folders
          */
-        if (file.name == "." || file.name == "..")
+        if (file.name == "." || file.name == ".." || file.name[0] == '.')
             continue;
 
-        fd = open(fullPath.c_str(), O_RDONLY);
+        /*
+         * Is it a folder?
+         */
+        if (ext::pos(file.name, '.') == -1)
+            continue;
+
+        int fd = open(fullPath.c_str(), O_RDONLY);
         if (fd == -1)
             continue;
 
         fstat(fd, &sbuf);
-        file.size = sbuf.st_size;
         file.modify = dateToStr(&sbuf.st_mtime);
-        ::close(fd);
-        flist.push_back(file);
+        file.size = sbuf.st_size;
+        close(fd);
+        localFiles.push_back(file);
     }
     closedir(dir);
-    return flist;
+    return localFiles;
 }
 
 void FileWatch::handler()
 {
     const auto &syc = _cfg->getSyncCfg();
-    vector<File> localFiles = getFileList(syc.path);
+    vector<File> localFiles;
+
+    try {
+        localFiles = getFileList(syc.path);
+    }
+    catch (const string &err) {
+        _log->local("FileWatch: " + err, LOG_ERROR);
+        return;
+    }
 
     for (const File &file : localFiles) {
-        cout << file.name << " " << file.size << " " << file.modify << endl;
+        _fhash->open(syc.path + "/" + file.name);
+        cout << "[name: " << file.name << "][size: " << file.size << "][last_modify: " << file.modify
+             << "][hash: " << _fhash->generate() << "]" << endl;
+        _fhash->close();
     }
-    cout << "==========" << endl;
+    cout << "==================================================" << endl;
 }

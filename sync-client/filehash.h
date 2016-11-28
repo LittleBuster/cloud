@@ -27,7 +27,7 @@ public:
 };
 
 
-class FileHash
+class FileHash: public IFileHash
 {
 private:
     ifstream _file;

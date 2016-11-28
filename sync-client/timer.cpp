@@ -27,8 +27,7 @@ void Timer::start(unsigned delay)
 {
     _delay = delay;
     _isOn = true;
-    thread th(bind(&Timer::loop, this));
-    th.detach();
+    loop();
 }
 
 void Timer::stop()

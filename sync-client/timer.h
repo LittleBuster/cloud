@@ -12,7 +12,6 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
-#include <thread>
 #include <functional>
 
 
@@ -39,8 +38,15 @@ private:
 public:
     virtual void handler() { }
 
+    /**
+     * Starting timer with delay
+     * @delay: milleseconds
+     */
     void start(unsigned delay);
 
+    /*
+     *  Stopping timer
+     */
     void stop();
 };
 

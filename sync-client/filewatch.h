@@ -16,6 +16,7 @@
 #include "timer.h"
 #include "log.h"
 #include "configs.h"
+#include "filehash.h"
 
 typedef struct {
     string name;
@@ -29,13 +30,15 @@ class FileWatch: public Timer
 private:
     const shared_ptr<ILog> _log;
     const shared_ptr<IConfigs> _cfg;
+    const shared_ptr<IFileHash> _fhash;
 
     string dateToStr(time_t *time);
 
     vector<File> getFileList(const string &path);
 
 public:
-    FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg);
+    FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
+              const shared_ptr<IFileHash> &fhash);
 
     virtual void handler() override final;
 };

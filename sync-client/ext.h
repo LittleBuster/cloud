@@ -28,6 +28,8 @@ const string current_datetime();
 
 const string ftoa(float num);
 
+size_t pos(const string &str, const char sym);
+
 
 }
 

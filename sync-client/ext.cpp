@@ -52,7 +52,7 @@ const string current_datetime()
     char buf[80];
 
     tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
 
     return buf;
 }
@@ -62,6 +62,18 @@ const string ftoa(float num)
     ostringstream buff;
     buff << num;
     return buff.str();
+}
+
+size_t pos(const string &str, const char sym)
+{
+    size_t i = 0;
+
+    for (const auto &c : str) {
+        if (c == sym)
+            return i;
+        i++;
+    }
+    return -1;
 }
 
 

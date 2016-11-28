@@ -12,17 +12,16 @@
 #include "app.h"
 #include "log.h"
 #include "configs.h"
+#include "filehash.h"
 #include "filewatch.h"
-#include <memory>
-
-using namespace std;
 
 
 int main()
 {
     auto log = make_shared<Log>();
     auto cfg = make_shared<Configs>();
-    auto fileWatch = make_shared<FileWatch>(log, cfg);
+    auto fhash = make_shared<FileHash>();
+    auto fileWatch = make_shared<FileWatch>(log, cfg, fhash);
     auto app = make_shared<App>(log, cfg, fileWatch);
 
     return app->start();

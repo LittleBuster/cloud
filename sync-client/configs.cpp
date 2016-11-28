@@ -11,6 +11,8 @@
 
 
 #include "configs.h"
+#include "ext.h"
+#include <string.h>
 #include <fstream>
 #include <iostream>
 
@@ -18,47 +20,29 @@
 string Configs::readString(ifstream &is) const
 {
     char line[255];
-    bool isFind = false;
-    string out = "";
 
     while (1) {
+        memset(line, 0x00, 255);
         is.getline(line, 255);
-        if (line[0] != '#' || line[0] != '/' || line[0] != '\n')
+        if (line[0] != '#' && line[0] != '/' && line[0] != '\n' && string(line) != "")
             break;
     }
-
-    for (const auto &sym : line) {
-        if (sym == '=') {
-            isFind = true;
-            continue;
-        }
-        if (isFind && sym != ' ')
-            out += sym;
-    }
-    return out;
+    const auto &param = ext::split_string(string(line), '=');
+    return get<1>(param);
 }
 
 int Configs::readInt(ifstream &is) const
 {
     char line[255];
-    bool isFind = false;
-    string out = "";
 
     while (1) {
         is.getline(line, 255);
-        if (line[0] != '#' || line[0] != '/' || line[0] != '\n')
+        if (line[0] != '#' && line[0] != '/' && line[0] != '\n' && string(line) != "")
             break;
     }
 
-    for (const auto &sym : line) {
-        if (sym == '=') {
-            isFind = true;
-            continue;
-        }
-        if (isFind && sym != ' ')
-            out += sym;
-    }
-    return atoi(out.c_str());
+    const auto &param = ext::split_string(string(line), '=');
+    return atoi(get<1>(param).c_str());
 }
 
 

@@ -14,11 +14,23 @@
 
 #include <memory>
 
-using namespace std;
+#ifdef WIN32
+    #include <Windows.h>
+    #include <Winsock2.h>
+#else
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    #include <unistd.h>
+    #include <string.h>
 
-#define INVALID_SOCKET (SOCKET)(~0)
-#define SOCKET_ERROR (-1)
-#define SOCKET int
+    #define INVALID_SOCKET (SOCKET)(~0)
+    #define SOCKET_ERROR (-1)
+    #define SOCKET int
+#endif
+
+using namespace std;
 
 
 class ITcpClient

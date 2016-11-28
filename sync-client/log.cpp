@@ -24,7 +24,7 @@ string Log::makeLogMsg(const string &msg, const LogType type) const
 {
     string out;
 
-    const auto &dt = ext::split_string(ext::current_datetime(), '.');
+    const auto &dt = ext::split_string(ext::current_datetime(), ' ');
     out = "[" + get<0>(dt) + "][" + get<1>(dt) + "][";
 
     switch (type) {

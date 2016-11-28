@@ -32,6 +32,8 @@ int App::start()
         return -1;
     }
 
-    _fw->start(3000);
+    const auto &syc = _cfg->getSyncCfg();
+
+    _fw->start(syc.interval);
     return 0;
 }

@@ -42,7 +42,7 @@ string FileHash::generate()
 
     while (!_file.eof()) {
         memset(buf, 0x00, 512);
-        _file >> buf;
+        _file.read(buf, 512);
         SHA512_Update(&sha, buf, 512);
     }
 

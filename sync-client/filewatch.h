@@ -17,11 +17,15 @@
 #include "log.h"
 #include "configs.h"
 #include "filehash.h"
+#include "tcpclient.h"
+#include "filetransfer.h"
+
 
 typedef struct {
     string name;
     unsigned long size;
     string modify;
+    string hash;
 } File;
 
 
@@ -31,6 +35,8 @@ private:
     const shared_ptr<ILog> _log;
     const shared_ptr<IConfigs> _cfg;
     const shared_ptr<IFileHash> _fhash;
+    const shared_ptr<IFileTransfer> _ftransfer;
+    const shared_ptr<ITcpClient> _client;
 
     string dateToStr(time_t *time);
 
@@ -38,7 +44,8 @@ private:
 
 public:
     FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
-              const shared_ptr<IFileHash> &fhash);
+              const shared_ptr<IFileHash> &fhash, const shared_ptr<IFileTransfer> &ftransfer,
+              const shared_ptr<ITcpClient> &client);
 
     virtual void handler() override final;
 };

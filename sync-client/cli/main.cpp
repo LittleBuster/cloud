@@ -14,6 +14,8 @@
 #include "configs.h"
 #include "filehash.h"
 #include "filewatch.h"
+#include "tcpclient.h"
+#include "filetransfer.h"
 
 
 int main()
@@ -21,8 +23,10 @@ int main()
     auto log = make_shared<Log>();
     auto cfg = make_shared<Configs>();
     auto fhash = make_shared<FileHash>();
-    auto fileWatch = make_shared<FileWatch>(log, cfg, fhash);
-    auto app = make_shared<App>(log, cfg, fileWatch);
+    auto client = make_shared<TcpClient>();
+    auto ftransfer = make_shared<FileTransfer>(client);
+    auto fwatch = make_shared<FileWatch>(log, cfg, fhash, ftransfer, client);
+    auto app = make_shared<App>(log, cfg, fwatch);
 
     return app->start();
 }

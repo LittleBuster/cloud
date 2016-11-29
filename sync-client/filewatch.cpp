@@ -23,8 +23,11 @@
 #include <iostream>
 
 
-FileWatch::FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg, const shared_ptr<IFileHash> &fhash):
-                     _log(move(log)), _cfg(move(cfg)), _fhash(move(fhash))
+FileWatch::FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
+                     const shared_ptr<IFileHash> &fhash, const shared_ptr<IFileTransfer> &ftransfer,
+                     const shared_ptr<ITcpClient> &client):
+                     _log(move(log)), _cfg(move(cfg)), _fhash(move(fhash)), _ftransfer(move(ftransfer)),
+                     _client(move(client))
 {
 }
 
@@ -76,10 +79,21 @@ vector<File> FileWatch::getFileList(const string &path)
         if (fd == -1)
             continue;
 
+        /*
+         * Getting size and last modify date
+         */
         fstat(fd, &sbuf);
         file.modify = dateToStr(&sbuf.st_mtime);
         file.size = sbuf.st_size;
-        close(fd);
+        close(fd);        
+
+        /*
+         * Generating hash of file
+         */
+        _fhash->open(fullPath);
+        file.hash = _fhash->generate();
+        _fhash->close();
+
         localFiles.push_back(file);
     }
     closedir(dir);
@@ -88,6 +102,7 @@ vector<File> FileWatch::getFileList(const string &path)
 
 void FileWatch::handler()
 {
+    const auto &sc = _cfg->getServerCfg();
     const auto &syc = _cfg->getSyncCfg();
     vector<File> localFiles;
 
@@ -99,11 +114,26 @@ void FileWatch::handler()
         return;
     }
 
-    for (const File &file : localFiles) {
-        _fhash->open(syc.path + "/" + file.name);
-        cout << "[name: " << file.name << "][size: " << file.size << "][last_modify: " << file.modify
-             << "][hash: " << _fhash->generate() << "]" << endl;
-        _fhash->close();
+    try {
+        _client->connect(sc.ip, sc.port);
     }
+    catch (const string &err) {
+        _log->local(err, LOG_ERROR);
+        return;
+    }
+
+    for (const File &file : localFiles) {
+        try {
+            _ftransfer->openSend(syc.path + "/" + file.name, file.size);
+            _ftransfer->sendFile();
+            _ftransfer->close();
+        }
+        catch (const string &err) {
+            _log->local(err, LOG_ERROR);
+            continue;
+        }
+    }
+
+    _client->close();
     cout << "==================================================" << endl;
 }

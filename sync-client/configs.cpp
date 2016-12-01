@@ -11,54 +11,35 @@
 
 
 #include "configs.h"
-#include "ext.h"
-#include <string.h>
 #include <fstream>
 #include <iostream>
-
-
-string Configs::readString(ifstream &is) const
-{
-    char line[255];
-
-    while (1) {
-        memset(line, 0x00, 255);
-        is.getline(line, 255);
-        if (line[0] != '#' && line[0] != '/' && line[0] != '\n' && string(line) != "")
-            break;
-    }
-    const auto &param = ext::split_string(string(line), '=');
-    return get<1>(param);
-}
-
-int Configs::readInt(ifstream &is) const
-{
-    char line[255];
-
-    while (1) {
-        is.getline(line, 255);
-        if (line[0] != '#' && line[0] != '/' && line[0] != '\n' && string(line) != "")
-            break;
-    }
-
-    const auto &param = ext::split_string(string(line), '=');
-    return atoi(get<1>(param).c_str());
-}
+#include <string.h>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 
 void Configs::load(const string &filename)
 {
-    ifstream ifs;
+    std::ifstream ifs;
+    boost::property_tree::ptree pt;
 
     ifs.open(filename);
     if (!ifs.is_open())
         throw string("File not found.");
 
     try {
-        sc.ip = readString(ifs);
-        sc.port = static_cast<unsigned>(readInt(ifs));
-        syc.path = readString(ifs);
-        syc.interval = static_cast<unsigned>(readInt(ifs));
+        boost::property_tree::read_json(ifs, pt);
+    }
+    catch (...) {
+        ifs.close();
+        throw string("Fail parsing json file.");
+    }
+
+    try {
+        sc.ip = pt.get<string>("Server.Ip");
+        sc.port = pt.get<unsigned>("Server.Port");
+        syc.path = pt.get<string>("Sync.Path");
+        syc.interval = pt.get<unsigned>("Sync.Interval");
     }
     catch (...) {
         ifs.close();

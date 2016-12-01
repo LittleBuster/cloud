@@ -11,6 +11,7 @@
 
 #include "app.h"
 #include <iostream>
+#include <unistd.h>
 
 
 App::App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
@@ -33,7 +34,7 @@ int App::start()
     }
 
     const auto &syc = _cfg->getSyncCfg();
-
-    _fw->start(syc.interval);
+    _fw->setInterval(syc.interval);
+    _fw->start();
     return 0;
 }

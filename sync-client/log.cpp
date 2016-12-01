@@ -11,12 +11,12 @@
 
 
 #include "log.h"
-#include "ext.h"
 #include <iostream>
 #include <fstream>
+#include <boost/date_time.hpp>
 
 
-Log::Log(): _logPath("")
+Log::Log()
 {
 }
 
@@ -24,20 +24,20 @@ string Log::makeLogMsg(const string &msg, const LogType type) const
 {
     string out;
 
-    const auto &dt = ext::split_string(ext::current_datetime(), ' ');
-    out = "[" + get<0>(dt) + "][" + get<1>(dt) + "][";
+    const auto &dt = boost::posix_time::second_clock::local_time();
+    out = "[" + boost::lexical_cast<string>(dt.date()) + "][" + boost::lexical_cast<string>(dt.time_of_day()) + "][";
 
     switch (type) {
         case LOG_ERROR: {
-            out += "ERROR] ";
+            out += "ERROR]";
             break;
         }
         case LOG_WARNING: {
-            out += "WARNING] ";
+            out += "WARNING]";
             break;
         }
         case LOG_INFORMATION: {
-            out += "INFO] ";
+            out += "INFO]";
             break;
         }
     }

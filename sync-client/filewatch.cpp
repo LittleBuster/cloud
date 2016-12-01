@@ -10,130 +10,37 @@
  */
 
 #include "filewatch.h"
-#include "ext.h"
 #include <vector>
-#include <ctime>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <unistd.h>
+#include <boost/filesystem.hpp>
 #include <iostream>
+#include <fstream>
+
+namespace fs = boost::filesystem;
 
 
 FileWatch::FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
-                     const shared_ptr<IFileHash> &fhash, const shared_ptr<IFileTransfer> &ftransfer,
-                     const shared_ptr<ITcpClient> &client):
-                     _log(move(log)), _cfg(move(cfg)), _fhash(move(fhash)), _ftransfer(move(ftransfer)),
-                     _client(move(client))
+                     const shared_ptr<IFileHash> &fhash,
+                     const shared_ptr<ITcpClient> &client,
+                     const shared_ptr<IFileTransfer> &ftransfer):
+                     _log(move(log)), _cfg(move(cfg)), _fhash(move(fhash)),
+                     _client(move(client)), _ftransfer(move(ftransfer))
 {
-}
-
-string FileWatch::dateToStr(time_t *time)
-{
-    char time_str[20];
-    char date_str[20];
-    struct tm *timeinfo;
-    string out;
-
-    timeinfo = localtime(time);
-    strftime(date_str, 20, "%F", timeinfo);
-    strftime(time_str, 20, "%T", timeinfo);
-
-    out = string(date_str) + " " + string(time_str);
-    return out;
-}
-
-vector<File> FileWatch::getFileList(const string &path)
-{
-    DIR *dir;
-    vector<File> localFiles;
-    struct dirent *f_cur;
-
-    if ((dir = opendir(path.c_str())) == NULL)
-        throw string("Fail open path \"" + path + "\"");
-
-    while ((f_cur = readdir(dir)) != NULL) {
-        struct stat sbuf;
-        File file;
-        string fullPath = path + "/";
-
-        file.name = string(f_cur->d_name);
-        fullPath += file.name;
-
-        /*
-         * Ignoring hidden files and prev folders
-         */
-        if (file.name == "." || file.name == ".." || file.name[0] == '.')
-            continue;
-
-        /*
-         * Is it a folder?
-         */
-        if (ext::pos(file.name, '.') == -1)
-            continue;
-
-        int fd = open(fullPath.c_str(), O_RDONLY);
-        if (fd == -1)
-            continue;
-
-        /*
-         * Getting size and last modify date
-         */
-        fstat(fd, &sbuf);
-        file.modify = dateToStr(&sbuf.st_mtime);
-        file.size = sbuf.st_size;
-        close(fd);        
-
-        /*
-         * Generating hash of file
-         */
-        _fhash->open(fullPath);
-        file.hash = _fhash->generate();
-        _fhash->close();
-
-        localFiles.push_back(file);
-    }
-    closedir(dir);
-    return localFiles;
 }
 
 void FileWatch::handler()
 {
-    const auto &sc = _cfg->getServerCfg();
-    const auto &syc = _cfg->getSyncCfg();
-    vector<File> localFiles;
+    const auto &syc = _cfg->getSyncCfg();    
+    vector<boost::filesystem::path> files;
 
-    try {
-        localFiles = getFileList(syc.path);
-    }
-    catch (const string &err) {
-        _log->local("FileWatch: " + err, LOG_ERROR);
-        return;
-    }
+    fs::path path(syc.path);
+    copy(fs::directory_iterator(path), fs::directory_iterator(), back_inserter(files));
 
-    try {
-        _client->connect(sc.ip, sc.port);
-    }
-    catch (const string &err) {
-        _log->local(err, LOG_ERROR);
-        return;
-    }
-
-    for (const File &file : localFiles) {
-        try {
-            _ftransfer->openSend(syc.path + "/" + file.name, file.size);
-            _ftransfer->sendFile();
-            _ftransfer->close();
-        }
-        catch (const string &err) {
-            _log->local(err, LOG_ERROR);
-            continue;
+    for (const fs::path &file : files) {
+        if (!fs::is_directory(file)) {
+            cout << file.string() << endl;
+            _fhash->open(file.string());
+            cout << _fhash->generate() << endl << endl;
+            _fhash->close();
         }
     }
-
-    _client->close();
-    cout << "==================================================" << endl;
 }

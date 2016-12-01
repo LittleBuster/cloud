@@ -12,25 +12,20 @@
 #include "timer.h"
 
 
-void Timer::loop()
+void Timer::start()
 {
-    while (_isOn) {
+    _isRun = true;
+    _timer = make_shared<boost::asio::deadline_timer>(_io, boost::posix_time::seconds(_interval));
+
+    while (_isRun) {
+        _timer->wait();
         handler();
-
-        int CLOCKS_PER_MSEC = CLOCKS_PER_SEC / 1000;
-        clock_t end_time = clock() + _delay * CLOCKS_PER_MSEC;
-        while (clock() < end_time) {}
+        _timer->expires_at(_timer->expires_at() + boost::posix_time::seconds(_interval));
     }
-}
-
-void Timer::start(unsigned delay)
-{
-    _delay = delay;
-    _isOn = true;
-    loop();
 }
 
 void Timer::stop()
 {
-    _isOn = false;
+    _isRun = false;
+    _io.stop();
 }

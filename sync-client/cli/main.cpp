@@ -10,12 +10,12 @@
  */
 
 #include "app.h"
-#include "log.h"
-#include "configs.h"
-#include "filehash.h"
-#include "filewatch.h"
-#include "tcpclient.h"
-#include "filetransfer.h"
+#include "../log.h"
+#include "../configs.h"
+#include "../filewatch.h"
+#include "../filehash.h"
+#include "../tcpclient.h"
+#include "../filetransfer.h"
 
 
 int main()
@@ -25,7 +25,7 @@ int main()
     auto fhash = make_shared<FileHash>();
     auto client = make_shared<TcpClient>();
     auto ftransfer = make_shared<FileTransfer>(client);
-    auto fwatch = make_shared<FileWatch>(log, cfg, fhash, ftransfer, client);
+    auto fwatch = make_shared<FileWatch>(log, cfg, fhash, client, ftransfer);
     auto app = make_shared<App>(log, cfg, fwatch);
 
     return app->start();

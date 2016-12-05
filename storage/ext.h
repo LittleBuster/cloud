@@ -9,29 +9,32 @@
 // of the Licence, or (at your option) any later version.
 
 
-#ifndef FILEHASH_H_
-#define FILEHASH_H_
+#ifndef EXT_H_
+#define EXT_H_
 
 #include <string>
-#include <fstream>
+#include <vector>
+#include <tuple>
+#include <ctime>
 
 using namespace std;
 
 
-class FileHash
-{
-public:
-    FileHash(const string &filename);
+namespace ext {
 
-    ~FileHash();
 
-    string Generate();
+tuple<string, string> split_string(const string &str, char sym);
 
-private:
-    ifstream file_;
+const string current_datetime();
 
-    string HashToStr(const unsigned char *hash);
-};
+const string ftoa(float num);
+
+int pos(const string &str, const char sym);
+
+string date_to_str(time_t *time);
+
+
+}
 
 
 #endif

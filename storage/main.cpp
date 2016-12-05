@@ -9,29 +9,18 @@
 // of the Licence, or (at your option) any later version.
 
 
-#ifndef FILEHASH_H_
-#define FILEHASH_H_
-
-#include <string>
-#include <fstream>
-
-using namespace std;
+#include "app.h"
+#include "log.h"
+#include "configs.h"
+#include "cloudstorage.h"
 
 
-class FileHash
+int main()
 {
-public:
-    FileHash(const string &filename);
+    auto log = make_shared<Log>();
+    auto cfg = make_shared<Configs>();
+    auto storage = make_shared<CloudStorage>(cfg, log);
+    auto app = make_shared<App>(log, cfg, storage);
 
-    ~FileHash();
-
-    string Generate();
-
-private:
-    ifstream file_;
-
-    string HashToStr(const unsigned char *hash);
-};
-
-
-#endif
+    return app->start();
+}

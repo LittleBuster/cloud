@@ -30,21 +30,35 @@ typedef struct {
     unsigned long size;
 } File;
 
+enum cmds_codes {
+    CMD_SEND_FILE,
+    CMD_RECV_FILE,
+    CMD_EXIT
+};
+
+typedef struct {
+    unsigned code;
+} Command;
+
+typedef struct {
+    unsigned long size;
+    char modify_time[50];
+    char filename[255];
+    char hash[515];
+} FileInfo;
+
 
 class FileWatch: public Timer
 {
 private:
     const shared_ptr<ILog> log_;
     const shared_ptr<IConfigs> cfg_;
-    const shared_ptr<IFileHash> file_hash_;
-    const shared_ptr<IFileTransfer> file_transfer_;
     const shared_ptr<ITcpClient> client_;
 
     vector<File> GetFileList(const string &path);
 
 public:
     FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
-              const shared_ptr<IFileHash> &file_hash, const shared_ptr<IFileTransfer> &file_transfer,
               const shared_ptr<ITcpClient> &client);
 
     virtual void Handler() override final;

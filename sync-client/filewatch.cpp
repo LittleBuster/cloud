@@ -20,14 +20,13 @@
 #include <unistd.h>
 
 #include "filewatch.h"
+#include "filehash.h"
 #include "ext.h"
 
 
 FileWatch::FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
-                     const shared_ptr<IFileHash> &file_hash, const shared_ptr<IFileTransfer> &file_transfer,
                      const shared_ptr<ITcpClient> &client):
-                     log_(move(log)), cfg_(move(cfg)), file_hash_(move(file_hash)), file_transfer_(move(file_transfer)),
-                     client_(move(client))
+                     log_(move(log)), cfg_(move(cfg)), client_(move(client))
 {
 }
 
@@ -75,9 +74,8 @@ vector<File> FileWatch::GetFileList(const string &path)
         /*
          * Generating hash of file
          */
-        file_hash_->Open(full_path);
-        file.hash = file_hash_->Generate();
-        file_hash_->Close();
+        FileHash hash(full_path);
+        file.hash = hash.Generate();
 
         local_files.push_back(file);
     }
@@ -90,6 +88,7 @@ void FileWatch::Handler()
     const auto &sc = cfg_->GetServerCfg();
     const auto &syc = cfg_->GetSyncCfg();
     vector<File> local_files;
+    Command cmd;
 
     try {
         local_files = GetFileList(syc.path);
@@ -107,11 +106,21 @@ void FileWatch::Handler()
         return;
     }
 
-    for (const File &file : local_files) {
+    for (const File &file : local_files) {        
+        FileInfo info;
+
+        strncpy(info.filename, file.name.c_str(), 255);
+        strncpy(info.hash, file.hash.c_str(), 512);
+        strncpy(info.modify_time, file.modify.c_str(), 49);
+        info.size = file.size;
+
         try {
-            file_transfer_->OpenSend(syc.path + "/" + file.name, file.size);
-            file_transfer_->SendFile();
-            file_transfer_->Close();
+            cmd.code = CMD_SEND_FILE;
+            client_->Send(&cmd, sizeof(Command));
+            client_->Send(&info, sizeof(FileInfo));
+
+            FileSender fs(syc.path + file.name, file.size);
+            fs.Upload(client_);
         }
         catch (const string &err) {
             log_->Local(err, LOG_ERROR);
@@ -119,6 +128,13 @@ void FileWatch::Handler()
         }
     }
 
+    try {
+        cmd.code = CMD_EXIT;
+        client_->Send(&cmd, sizeof(Command));
+    }
+    catch (const string &err) {
+        log_->Local(err, LOG_ERROR);
+    }
+
     client_->Close();
-    cout << "==================================================" << endl;
 }

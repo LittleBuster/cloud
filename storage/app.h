@@ -9,28 +9,25 @@
 // of the Licence, or (at your option) any later version.
 
 
-#ifndef FILEHASH_H_
-#define FILEHASH_H_
+#ifndef APP_H_
+#define APP_H_
 
-#include <string>
-#include <fstream>
+#include "log.h"
+#include "configs.h"
+#include "cloudstorage.h"
 
-using namespace std;
 
-
-class FileHash
+class App
 {
 public:
-    FileHash(const string &filename);
+    App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg, const shared_ptr<ICloudStorage> &storage);
 
-    ~FileHash();
-
-    string Generate();
+    int start();
 
 private:
-    ifstream file_;
-
-    string HashToStr(const unsigned char *hash);
+    const shared_ptr<ILog> log_;
+    const shared_ptr<IConfigs> cfg_;
+    const shared_ptr<ICloudStorage> storage_;
 };
 
 

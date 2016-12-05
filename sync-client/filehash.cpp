@@ -29,9 +29,14 @@ string FileHash::HashToStr(const unsigned char *hash)
     return out;
 }
 
-void FileHash::Open(const string &filename)
+FileHash::FileHash(const string &filename)
 {
     file_.open(filename);
+}
+
+FileHash::~FileHash()
+{
+    file_.close();
 }
 
 string FileHash::Generate()
@@ -50,9 +55,4 @@ string FileHash::Generate()
 
     SHA512_Final(out, &sha);
     return HashToStr(out);
-}
-
-void FileHash::Close()
-{
-    file_.close();
 }

@@ -29,12 +29,6 @@ public:
 
 class Timer: public ITimer
 {
-private:
-    bool is_on_ = false;
-    unsigned delay_;
-
-    void Loop();
-
 public:
     virtual void Handler() { }
 
@@ -48,6 +42,12 @@ public:
      *  Stopping timer
      */
     void Stop();
+
+private:
+    bool is_on_ = false;
+    unsigned delay_;
+
+    void Loop();
 };
 
 

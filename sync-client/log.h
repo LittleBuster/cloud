@@ -36,19 +36,6 @@ public:
 
 class Log: public ILog
 {
-private:
-    string log_path_;
-    using ILog::SetLogFile;
-
-    /**
-     * Create log string for writing to file
-     * @msg: logging message
-     * @type: log message type
-     *
-     * returns full log string width datetime and type
-     */
-    string MakeLogMsg(const string &msg, const LogType type) const;
-
 public:
     explicit Log();
 
@@ -65,6 +52,19 @@ public:
      * throw: error if fail access to file
      */
     void Local(const string &message, const LogType log_type);
+
+private:
+    string log_path_;
+    using ILog::SetLogFile;
+
+    /**
+     * Create log string for writing to file
+     * @msg: logging message
+     * @type: log message type
+     *
+     * returns full log string width datetime and type
+     */
+    string MakeLogMsg(const string &msg, const LogType type) const;
 };
 
 

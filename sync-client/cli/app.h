@@ -19,16 +19,16 @@
 
 class App
 {
-private:
-    const shared_ptr<ILog> log_;
-    const shared_ptr<IConfigs> cfg_;
-    const shared_ptr<ITimer> file_watch_;
-
 public:
     App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
         const shared_ptr<ITimer> &file_watch);
 
     int start();
+
+private:
+    const shared_ptr<ILog> log_;
+    const shared_ptr<IConfigs> cfg_;
+    const shared_ptr<ITimer> file_watch_;
 };
 
 

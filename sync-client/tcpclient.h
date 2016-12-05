@@ -45,9 +45,6 @@ public:
 
 class TcpClient: public ITcpClient
 {
-private:
-    SOCKET client_;
-
 public:
     TcpClient();
 
@@ -84,6 +81,9 @@ public:
      * Close connection
      */
     void Close(void) const;
+
+private:
+    SOCKET client_;
 };
 
 

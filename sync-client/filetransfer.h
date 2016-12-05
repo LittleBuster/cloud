@@ -36,12 +36,6 @@ public:
 
 class FileTransfer: public IFileTransfer
 {
-private:
-    const shared_ptr<ITcpClient> client_;
-    ifstream in_file_;
-    ofstream out_file_;
-    unsigned long size_;
-
 public:
     FileTransfer(const shared_ptr<ITcpClient> &client);
 
@@ -54,6 +48,12 @@ public:
     void RecvFile();
 
     void Close();
+
+private:
+    const shared_ptr<ITcpClient> client_;
+    ifstream in_file_;
+    ofstream out_file_;
+    unsigned long size_;
 };
 
 

@@ -1,23 +1,23 @@
-/* Cloud: sync client application
- *
- * Copyright (C) 2016 Sergey Denisov.
- * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public Licence 3
- * as published by the Free Software Foundation; either version 3
- * of the Licence, or (at your option) any later version.
- */
+// Cloud: sync client application
+//
+// Copyright (C) 2016 Sergey Denisov.
+// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public Licence 3
+// as published by the Free Software Foundation; either version 3
+// of the Licence, or (at your option) any later version.
 
 
-#include "configs.h"
-#include "ext.h"
 #include <string.h>
 #include <fstream>
 #include <iostream>
 
+#include "configs.h"
+#include "ext.h"
 
-string Configs::readString(ifstream &is) const
+
+string Configs::ReadString(ifstream &is) const
 {
     char line[255];
 
@@ -31,7 +31,7 @@ string Configs::readString(ifstream &is) const
     return get<1>(param);
 }
 
-int Configs::readInt(ifstream &is) const
+int Configs::ReadInt(ifstream &is) const
 {
     char line[255];
 
@@ -46,7 +46,7 @@ int Configs::readInt(ifstream &is) const
 }
 
 
-void Configs::load(const string &filename)
+void Configs::Load(const string &filename)
 {
     ifstream ifs;
 
@@ -55,10 +55,10 @@ void Configs::load(const string &filename)
         throw string("File not found.");
 
     try {
-        sc.ip = readString(ifs);
-        sc.port = static_cast<unsigned>(readInt(ifs));
-        syc.path = readString(ifs);
-        syc.interval = static_cast<unsigned>(readInt(ifs));
+        sc_.ip = ReadString(ifs);
+        sc_.port = static_cast<unsigned>(ReadInt(ifs));
+        syc_.path = ReadString(ifs);
+        syc_.interval = static_cast<unsigned>(ReadInt(ifs));
     }
     catch (...) {
         ifs.close();

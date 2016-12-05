@@ -1,26 +1,26 @@
-/* Cloud: sync client application
- *
- * Copyright (C) 2016 Sergey Denisov.
- * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public Licence 3
- * as published by the Free Software Foundation; either version 3
- * of the Licence, or (at your option) any later version.
- */
+// Cloud: sync client application
+//
+// Copyright (C) 2016 Sergey Denisov.
+// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public Licence 3
+// as published by the Free Software Foundation; either version 3
+// of the Licence, or (at your option) any later version.
 
 
-#include "log.h"
-#include "ext.h"
 #include <iostream>
 #include <fstream>
 
+#include "log.h"
+#include "ext.h"
 
-Log::Log(): _logPath("")
+
+Log::Log(): log_path_("")
 {
 }
 
-string Log::makeLogMsg(const string &msg, const LogType type) const
+string Log::MakeLogMsg(const string &msg, const LogType type) const
 {
     string out;
 
@@ -45,17 +45,17 @@ string Log::makeLogMsg(const string &msg, const LogType type) const
     return out;
 }
 
-void Log::local(const string &message, const LogType logType)
+void Log::Local(const string &message, const LogType log_type)
 {
-    const string& msg = makeLogMsg(message, logType);
+    const string& msg = MakeLogMsg(message, log_type);
     cout << msg << endl;
 
-    if (_logPath == "")
+    if (log_path_ == "")
         return;
 
     try {
         ofstream log;
-        log.open(_logPath, ios::out|ios::ate|ios::app);
+        log.open(log_path_, ios::out|ios::ate|ios::app);
         log << msg << "\n";
         log.close();
     }

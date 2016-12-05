@@ -1,20 +1,21 @@
-/* Cloud: sync client application
- *
- * Copyright (C) 2016 Sergey Denisov.
- * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public Licence 3
- * as published by the Free Software Foundation; either version 3
- * of the Licence, or (at your option) any later version.
- */
+// Cloud: sync client application
+//
+// Copyright (C) 2016 Sergey Denisov.
+// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public Licence 3
+// as published by the Free Software Foundation; either version 3
+// of the Licence, or (at your option) any later version.
 
-#ifndef __EXT_H__
-#define __EXT_H__
+
+#ifndef EXT_H_
+#define EXT_H_
 
 #include <string>
 #include <vector>
 #include <tuple>
+#include <ctime>
 
 using namespace std;
 
@@ -28,7 +29,9 @@ const string current_datetime();
 
 const string ftoa(float num);
 
-size_t pos(const string &str, const char sym);
+int pos(const string &str, const char sym);
+
+string date_to_str(time_t *time);
 
 
 }

@@ -1,20 +1,22 @@
-/* Cloud: sync client application
- *
- * Copyright (C) 2016 Sergey Denisov.
- * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public Licence 3
- * as published by the Free Software Foundation; either version 3
- * of the Licence, or (at your option) any later version.
- */
+// Cloud: sync client application
+//
+// Copyright (C) 2016 Sergey Denisov.
+// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public Licence 3
+// as published by the Free Software Foundation; either version 3
+// of the Licence, or (at your option) any later version.
 
-#include "filehash.h"
+
 #include <string.h>
+
 #include <openssl/sha.h>
 
+#include "filehash.h"
 
-string FileHash::hashToStr(const unsigned char *hash)
+
+string FileHash::HashToStr(const unsigned char *hash)
 {
     string out = "";
 
@@ -27,12 +29,12 @@ string FileHash::hashToStr(const unsigned char *hash)
     return out;
 }
 
-void FileHash::open(const string &filename)
+void FileHash::Open(const string &filename)
 {
-    _file.open(filename);
+    file_.open(filename);
 }
 
-string FileHash::generate()
+string FileHash::Generate()
 {
     char buf[512];
     SHA512_CTX sha;
@@ -40,17 +42,17 @@ string FileHash::generate()
 
     SHA512_Init(&sha);
 
-    while (!_file.eof()) {
+    while (!file_.eof()) {
         memset(buf, 0x00, 512);
-        _file.read(buf, 512);
+        file_.read(buf, 512);
         SHA512_Update(&sha, buf, 512);
     }
 
     SHA512_Final(out, &sha);
-    return hashToStr(out);
+    return HashToStr(out);
 }
 
-void FileHash::close()
+void FileHash::Close()
 {
-    _file.close();
+    file_.close();
 }

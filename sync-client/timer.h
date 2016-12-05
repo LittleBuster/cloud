@@ -1,16 +1,16 @@
-/* Cloud: sync client application
- *
- * Copyright (C) 2016 Sergey Denisov.
- * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public Licence 3
- * as published by the Free Software Foundation; either version 3
- * of the Licence, or (at your option) any later version.
- */
+// Cloud: sync client application
+//
+// Copyright (C) 2016 Sergey Denisov.
+// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public Licence 3
+// as published by the Free Software Foundation; either version 3
+// of the Licence, or (at your option) any later version.
 
-#ifndef __TIMER_H__
-#define __TIMER_H__
+
+#ifndef TIMER_H_
+#define TIMER_H_
 
 #include <functional>
 
@@ -21,33 +21,33 @@ using namespace std;
 class ITimer
 {
 public:
-    virtual void handler()=0;
-    virtual void start(unsigned delay)=0;
-    virtual void stop()=0;
+    virtual void Handler()=0;
+    virtual void Start(unsigned delay)=0;
+    virtual void Stop()=0;
 };
 
 
 class Timer: public ITimer
 {
 private:
-    bool _isOn = false;
-    unsigned _delay;
+    bool is_on_ = false;
+    unsigned delay_;
 
-    void loop();
+    void Loop();
 
 public:
-    virtual void handler() { }
+    virtual void Handler() { }
 
     /**
      * Starting timer with delay
      * @delay: milleseconds
      */
-    void start(unsigned delay);
+    void Start(unsigned delay);
 
     /*
      *  Stopping timer
      */
-    void stop();
+    void Stop();
 };
 
 

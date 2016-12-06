@@ -37,10 +37,17 @@ void FileSender::Upload(const shared_ptr<ITcpClient> &client)
         client->Send(buf, DATA_SIZE);
     }
 
-    char last_buf[last_block];
+    char *last_buf = new char[last_block];
 
-    file_.read(last_buf, last_block);
-    client->Send(last_buf, last_block);
+    try {
+        file_.read(last_buf, last_block);
+        client->Send(last_buf, last_block);
+    }
+    catch (const string &err) {
+        delete[] last_buf;
+        throw string(err);
+    }
+    delete[] last_buf;
 }
 
 FileReceiver::FileReceiver(const string &localfile, unsigned long size)
@@ -68,8 +75,15 @@ void FileReceiver::Download(const shared_ptr<ITcpClient> &client)
         file_.write(buf, DATA_SIZE);
     }
 
-    char last_buf[last_block];
+    char *last_buf = new char[last_block];
 
-    client->Recv(last_buf, last_block);
-    file_.write(last_buf, last_block);
+    try {
+        client->Recv(last_buf, last_block);
+        file_.write(last_buf, last_block);
+    }
+    catch (const string &err) {
+        delete[] last_buf;
+        throw string(err);
+    }
+    delete[] last_buf;
 }

@@ -9,25 +9,36 @@
 // of the Licence, or (at your option) any later version.
 
 
-#ifndef APP_H_
-#define APP_H_
+#ifndef BASE_H_
+#define BASE_H_
 
-#include "log.h"
-#include "configs.h"
-#include "cloudstorage.h"
+#include <vector>
+#include <string>
+
+#include <sqlite3.h>
+
+using namespace std;
 
 
-class App
+typedef struct {
+    string name;
+    string passwd;
+} User;
+
+
+class UsersBase
 {
 public:
-    App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg, const shared_ptr<ICloudStorage> &storage);
+    void Open(const string &filename);
 
-    int start();
+    bool Exists(const User &user);
+
+    bool Verify(const User &user);
+
+    void Close();
 
 private:
-    const shared_ptr<ILog> log_;
-    const shared_ptr<IConfigs> cfg_;
-    const shared_ptr<ICloudStorage> storage_;
+    sqlite3 *base_;
 };
 
 

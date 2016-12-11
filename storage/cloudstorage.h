@@ -1,4 +1,4 @@
-// Cloud: sync client application
+// Cloud: storage application
 //
 // Copyright (C) 2016 Sergey Denisov.
 // Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
@@ -17,26 +17,11 @@
 #include "log.h"
 
 
-enum cmd_codes {
-    CMD_SEND_FILE,
-    CMD_RECV_FILE,
-    CMD_EXIT
-};
-
-enum answ_codes {
-    ANSW_NEED_UPLOAD,
-    ANSW_NOTHING
-};
-
-typedef struct {
-    unsigned code;
-} Command;
-
 typedef struct {
     unsigned long size;
-    char modify_time[50];
-    char filename[255];
     char hash[515];
+    char filename[255];
+    char modify_time[50];
 } FileInfo;
 
 

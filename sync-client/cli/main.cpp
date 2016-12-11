@@ -14,6 +14,7 @@
 #include "../configs.h"
 #include "../filewatch.h"
 #include "../tcpclient.h"
+#include "../session.h"
 
 
 int main()
@@ -21,8 +22,9 @@ int main()
     auto log = make_shared<Log>();
     auto cfg = make_shared<Configs>();
     auto client = make_shared<TcpClient>();
-    auto file_watch = make_shared<FileWatch>(log, cfg, client);
-    auto app = make_shared<App>(log, cfg, file_watch);
+    auto session = make_shared<Session>(client, cfg);
+    auto file_watch = make_shared<FileWatch>(log, cfg, client, session);
+    auto app = make_shared<App>(log, cfg, file_watch, session);
 
     return app->start();
 }

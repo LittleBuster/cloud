@@ -15,13 +15,14 @@
 #include "../log.h"
 #include "../configs.h"
 #include "../filewatch.h"
+#include "../session.h"
 
 
 class App
 {
 public:
     App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
-        const shared_ptr<ITimer> &file_watch);
+        const shared_ptr<ITimer> &file_watch, const shared_ptr<ISession> &session);
 
     int start();
 
@@ -29,6 +30,7 @@ private:
     const shared_ptr<ILog> log_;
     const shared_ptr<IConfigs> cfg_;
     const shared_ptr<ITimer> file_watch_;
+    const shared_ptr<ISession> session_;
 };
 
 

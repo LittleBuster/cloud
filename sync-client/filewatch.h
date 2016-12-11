@@ -9,9 +9,8 @@
 // of the Licence, or (at your option) any later version.
 
 
-#ifndef FILEWATCH_H_
-#define FILEWATCH_H_
-
+#ifndef FILE_WATCH_H_
+#define FILE_WATCH_H_
 
 #include <vector>
 
@@ -21,47 +20,39 @@
 #include "filehash.h"
 #include "tcpclient.h"
 #include "filetransfer.h"
+#include "session.h"
 
 
 typedef struct {
+    unsigned long size;
     string name;
     string hash;
-    string modify;
-    unsigned long size;
+    string modify;    
 } File;
 
-enum cmds_codes {
-    CMD_SEND_FILE,
-    CMD_RECV_FILE,
-    CMD_EXIT
-};
-
-typedef struct {
-    unsigned code;
-} Command;
-
 typedef struct {
     unsigned long size;
-    char modify_time[50];
-    char filename[255];
     char hash[515];
+    char filename[255];
+    char modify_time[50];
 } FileInfo;
 
 
 class FileWatch: public Timer
 {
+public:
+    FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
+              const shared_ptr<ITcpClient> &client, const shared_ptr<ISession> &session);
+
+    virtual void Handler() override final;
+
 private:
     const shared_ptr<ILog> log_;
     const shared_ptr<IConfigs> cfg_;
     const shared_ptr<ITcpClient> client_;
+    const shared_ptr<ISession> session_;
 
     vector<File> GetFileList(const string &path);
-
-public:
-    FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
-              const shared_ptr<ITcpClient> &client);
-
-    virtual void Handler() override final;
 };
 
 

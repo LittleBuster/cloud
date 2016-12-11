@@ -1,4 +1,4 @@
-// Cloud: storage application
+// Cloud: sync client application
 //
 // Copyright (C) 2016 Sergey Denisov.
 // Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
@@ -9,32 +9,28 @@
 // of the Licence, or (at your option) any later version.
 
 
-#ifndef EXT_H_
-#define EXT_H_
-
-#include <string>
-#include <vector>
-#include <tuple>
-#include <ctime>
-
-using namespace std;
+#ifndef NETWORK_H_
+#define NETWORK_H_
 
 
-namespace ext {
+enum CmdCodes {
+    CMD_SEND_FILE,
+    CMD_RECV_FILE,
+    CMD_CHECK_USER,
+    CMD_LOGIN,
+    CMD_EXIT
+};
+
+enum AnswCodes {
+    ANSW_NOTHING,
+    ANSW_NEED_UPLOAD,
+    ANSW_LOGIN_OK
+};
 
 
-tuple<string, string> split_string(const string &str, char sym);
-
-const string current_datetime();
-
-const string ftoa(float num);
-
-int pos(const string &str, const char sym);
-
-string date_to_str(time_t *time);
-
-
-}
+typedef struct {
+    unsigned int code;
+} Command;
 
 
 #endif

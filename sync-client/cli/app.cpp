@@ -12,11 +12,12 @@
 #include <iostream>
 
 #include "app.h"
+#include "../session.h"
 
 
 App::App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
-         const shared_ptr<ITimer> &file_watch): log_(move(log)), cfg_(move(cfg)),
-         file_watch_(move(file_watch))
+         const shared_ptr<ITimer> &file_watch, const shared_ptr<ISession> &session): log_(move(log)),
+         cfg_(move(cfg)), file_watch_(move(file_watch)), session_(move(session))
 {
 }
 
@@ -34,6 +35,14 @@ int App::start()
     }
 
     const auto &syc = cfg_->GetSyncCfg();
+
+    try {
+        session_->Login("serg", "123");
+    } catch (const string &err) {
+        log_->Local("Login: " + err, LOG_ERROR);
+        return -1;
+    }
+    cout << "Login ok." << endl;
 
     file_watch_->Start(syc.interval);
     return 0;

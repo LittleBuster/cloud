@@ -1,4 +1,4 @@
-// Cloud: sync client application
+// Cloud: storage application
 //
 // Copyright (C) 2016 Sergey Denisov.
 // Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)

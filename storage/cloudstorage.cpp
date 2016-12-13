@@ -14,36 +14,39 @@
 #include "cloudstorage.h"
 #include "filetransfer.h"
 #include "network.h"
+#include "session.h"
 
 
-CloudStorage::CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log):
-                           cfg_(move(cfg)), log_(move(log))
+CloudStorage::CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log, const shared_ptr<IUsersBase> &users_base):
+                           cfg_(move(cfg)), log_(move(log)), users_base_(move(users_base))
 {
-
 }
 
 void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
 {
     Command cmd;
+    auto session = make_shared<Session>(client, cfg_, users_base_);
 
     while (true) {
         try {
-            client->Recv(&cmd, sizeof(Command));
+            client->Recv(&cmd, sizeof(cmd));
         }
         catch (const string &err) {
-             log_->Local(err, LOG_ERROR);
+             log_->Local("Receiving command: " + err, LOG_ERROR);
             return;
         }
 
         switch (cmd.code) {
-            case CMD_CHECK_USER: {
-                break;
-            }
-
             case CMD_LOGIN: {
+                try {
+                    session->OpenNewSession();
+                }
+                catch (const string &err) {
+                    log_->Local("Checking user: " + err, LOG_ERROR);
+                    return;
+                }
                 break;
             }
-
             case CMD_SEND_FILE: {
                 FileInfo info;
                 const auto &syc = cfg_->GetSyncCfg();

@@ -23,8 +23,8 @@ int main()
     auto cfg = make_shared<Configs>();
     auto client = make_shared<TcpClient>();
     auto session = make_shared<Session>(client, cfg);
-    auto file_watch = make_shared<FileWatch>(log, cfg, client, session);
-    auto app = make_shared<App>(log, cfg, file_watch, session);
+    auto master_watch = make_shared<MasterWatch>(log, cfg, client, session);
+    auto app = make_shared<App>(log, cfg, master_watch, session);
 
     return app->start();
 }

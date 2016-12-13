@@ -22,7 +22,7 @@ class App
 public:
     App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg, const shared_ptr<ICloudStorage> &storage);
 
-    int start();
+    int Start();
 
 private:
     const shared_ptr<ILog> log_;

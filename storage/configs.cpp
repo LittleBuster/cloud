@@ -58,6 +58,8 @@ void Configs::Load(const string &filename)
         sc_.port = static_cast<unsigned>(ReadInt(ifs));
         sc_.max_users = static_cast<unsigned>(ReadInt(ifs));
         syc_.path = ReadString(ifs);
+        ubc_.path = ReadString(ifs);
+        fbc_.path = ReadString(ifs);
     }
     catch (...) {
         ifs.close();

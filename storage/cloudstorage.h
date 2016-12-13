@@ -15,6 +15,7 @@
 #include "tcpserver.h"
 #include "configs.h"
 #include "log.h"
+#include "base.h"
 
 
 typedef struct {
@@ -35,13 +36,14 @@ public:
 class CloudStorage final: public ICloudStorage, public TcpServer
 {
 public:
-    CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log);
+    CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log, const shared_ptr<IUsersBase> &users_base);
 
     void Start(unsigned port, unsigned max_clients) override final { TcpServer::Start(port, max_clients); }
 
 private:
     const shared_ptr<IConfigs> cfg_;
     const shared_ptr<ILog> log_;
+    const shared_ptr<IUsersBase> users_base_;
 
     virtual void NewSession(shared_ptr<ITcpClient> client) override final;
 

@@ -22,9 +22,10 @@
 using namespace std;
 
 typedef enum {
-    PV_ADMIN,
-    PV_USER,
-    PV_UNKNOWN
+    PV_ADMIN = 100,
+    PV_USER = 101,
+    PV_UNKNOWN = 102,
+    PV_ERROR = 103
 } Privilegies;
 
 typedef struct {

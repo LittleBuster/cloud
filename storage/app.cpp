@@ -20,7 +20,7 @@ App::App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
 {
 }
 
-int App::start()
+int App::Start()
 {
     cout << "Starting Cloud Storage server..." << endl;
     log_->SetLogFile("storage.log");
@@ -34,7 +34,6 @@ int App::start()
     }
 
     const auto &sc = cfg_->GetServerCfg();
-
     storage_->Start(sc.port, sc.max_users);
     return 0;
 }

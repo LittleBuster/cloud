@@ -42,6 +42,13 @@ static int VerifyCb(void *data, int argc, char **argv, char **col_name)
     return 0;
 }
 
+static int PrivCb(void *data, int argc, char **argv, char **col_name)
+{
+    unsigned *priv = reinterpret_cast<unsigned*>(data);
+    *priv = static_cast<unsigned>(atoi(argv[3]));
+    return 0;
+}
+
 
 void UsersBase::Open(const string &filename)
 {
@@ -67,6 +74,23 @@ bool UsersBase::Exists(const User &user)
         throw string("UsersBase exists: " + err);
     }
     return exists;
+}
+
+unsigned UsersBase::GetUserPriv(const User &user)
+{
+    int ret_val;
+    unsigned priv;
+    char *err_msg = 0;
+
+    string sql = "SELECT * FROM users WHERE name=\"" + user.name + "\"";
+
+    ret_val = sqlite3_exec(base_, sql.c_str(), PrivCb, reinterpret_cast<void*>(&priv), &err_msg);
+    if (ret_val != SQLITE_OK) {
+        string err(err_msg);
+        sqlite3_free(err_msg);
+        throw string("UsersBase priv: " + err);
+    }
+    return priv;
 }
 
 bool UsersBase::Verify(const User &user)

@@ -14,11 +14,10 @@
 
 
 enum CmdCodes {
-    CMD_SEND_FILE,
-    CMD_RECV_FILE,
-    CMD_CHECK_USER,
-    CMD_LOGIN,
-    CMD_EXIT
+    CMD_SEND_FILE = 100,
+    CMD_RECV_FILE = 101,
+    CMD_LOGIN = 102,
+    CMD_EXIT = 103
 };
 
 enum AnswCodes {
@@ -29,7 +28,7 @@ enum AnswCodes {
 
 
 typedef struct {
-    unsigned int code;
+    unsigned code;
 } Command;
 
 

@@ -38,10 +38,10 @@ typedef struct {
 } FileInfo;
 
 
-class FileWatch: public Timer
+class MasterWatch: public Timer
 {
 public:
-    FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
+    MasterWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
               const shared_ptr<ITcpClient> &client, const shared_ptr<ISession> &session);
 
     virtual void Handler() override final;

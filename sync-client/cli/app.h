@@ -22,14 +22,14 @@ class App
 {
 public:
     App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
-        const shared_ptr<ITimer> &file_watch, const shared_ptr<ISession> &session);
+        const shared_ptr<ITimer> &master_watch, const shared_ptr<ISession> &session);
 
     int start();
 
 private:
     const shared_ptr<ILog> log_;
     const shared_ptr<IConfigs> cfg_;
-    const shared_ptr<ITimer> file_watch_;
+    const shared_ptr<ITimer> master_watch_;
     const shared_ptr<ISession> session_;
 };
 

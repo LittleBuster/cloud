@@ -26,12 +26,25 @@ typedef struct {
 } User;
 
 
-class UsersBase
+class IUsersBase
+{
+public:
+    virtual void Open(const string &filename)=0;
+    virtual bool Exists(const User &user)=0;
+    virtual bool Verify(const User &user)=0;
+    virtual unsigned GetUserPriv(const User &user)=0;
+    virtual void Close()=0;
+};
+
+
+class UsersBase: public IUsersBase
 {
 public:
     void Open(const string &filename);
 
     bool Exists(const User &user);
+
+    unsigned GetUserPriv(const User &user);
 
     bool Verify(const User &user);
 

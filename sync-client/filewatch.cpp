@@ -25,13 +25,13 @@
 #include "ext.h"
 
 
-FileWatch::FileWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
+MasterWatch::MasterWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
                      const shared_ptr<ITcpClient> &client, const shared_ptr<ISession> &session):
                      log_(move(log)), cfg_(move(cfg)), client_(move(client)), session_(move(session))
 {
 }
 
-vector<File> FileWatch::GetFileList(const string &path)
+vector<File> MasterWatch::GetFileList(const string &path)
 {
     DIR *dir;
     vector<File> local_files;
@@ -84,7 +84,7 @@ vector<File> FileWatch::GetFileList(const string &path)
     return local_files;
 }
 
-void FileWatch::Handler()
+void MasterWatch::Handler()
 {
     const auto &sc = cfg_->GetServerCfg();
     const auto &syc = cfg_->GetSyncCfg();

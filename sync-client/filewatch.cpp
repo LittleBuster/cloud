@@ -86,24 +86,16 @@ vector<File> MasterWatch::GetFileList(const string &path)
 
 void MasterWatch::Handler()
 {
-    const auto &sc = cfg_->GetServerCfg();
     const auto &syc = cfg_->GetSyncCfg();
     vector<File> local_files;
     Command cmd;
 
     try {
         local_files = GetFileList(syc.path);
+        session_->OpenNewSession();
     }
     catch (const string &err) {
         log_->Local("FileWatch: " + err, LOG_ERROR);
-        return;
-    }
-
-    try {
-        client_->Connect(sc.ip, sc.port);
-    }
-    catch (const string &err) {
-        log_->Local(err, LOG_ERROR);
         return;
     }
 
@@ -118,12 +110,11 @@ void MasterWatch::Handler()
         try {
             cmd.code = CMD_SEND_FILE;
             client_->Send(&cmd, sizeof(cmd));
+            client_->Send(&info, sizeof(info));
 
             // Receiving answ
             client_->Recv(&cmd, sizeof(cmd));
             if (cmd.code == ANSW_NEED_UPLOAD) {
-                client_->Send(&info, sizeof(info));
-
                 FileSender fs(syc.path + file.name, file.size);
                 fs.Upload(client_);
             }
@@ -133,14 +124,5 @@ void MasterWatch::Handler()
             continue;
         }
     }
-
-    try {
-        cmd.code = CMD_EXIT;
-        client_->Send(&cmd, sizeof(cmd));
-    }
-    catch (const string &err) {
-        log_->Local(err, LOG_ERROR);
-    }
-
-    client_->Close();
+    session_->CloseSession();
 }

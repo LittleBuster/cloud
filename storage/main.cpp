@@ -21,7 +21,8 @@ int main()
     auto log = make_shared<Log>();
     auto cfg = make_shared<Configs>();
     auto users_base = make_shared<UsersBase>();
-    auto storage = make_shared<CloudStorage>(cfg, log, users_base);
+    auto files_base = make_shared<FilesBase>();
+    auto storage = make_shared<CloudStorage>(cfg, log, users_base, files_base);
     auto app = make_shared<App>(log, cfg, storage);
 
     return app->Start();

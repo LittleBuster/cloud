@@ -15,8 +15,8 @@
 #include "network.h"
 
 
-Session::Session(const shared_ptr<ITcpClient> &client, const shared_ptr<IConfigs> &cfg, const shared_ptr<IUsersBase> &ub):
-    client_(move(client)), cfg_(move(cfg)), ub_(move(ub))
+Session::Session(const shared_ptr<ITcpClient> &client, const shared_ptr<IConfigs> &cfg, const shared_ptr<IUsersBase> &ub, mutex &mtx):
+    client_(move(client)), cfg_(move(cfg)), ub_(move(ub)), mtx_(mtx)
 {    
 }
 
@@ -34,15 +34,18 @@ void Session::OpenNewSession()
 
     cout << "New client connected: " << user.name << endl;
 
+    mtx_.lock();
     ub_->Open(ubc.path);
     if (!ub_->Exists(user)) {
         answ.code = PV_UNKNOWN;
         client_->Send(&answ, sizeof(answ));
+        mtx_.unlock();
         throw string("Unknown user.");
     }
     else if (!ub_->Verify(user)) {
         answ.code = PV_ERROR;
         client_->Send(&answ, sizeof(answ));
+        mtx_.unlock();
         throw string("Bad user password.");
     }
     cout << "Authorization ok." << endl;
@@ -50,8 +53,14 @@ void Session::OpenNewSession()
     answ.code = ub_->GetUserPriv(user);
     SetCurrentPriv(answ.code);
     ub_->Close();
+    mtx_.unlock();
 
     client_->Send(&answ, sizeof(answ));
+}
+
+void Session::Close()
+{
+    client_->Close();
 }
 
 unsigned Session::GetPrivilegies()

@@ -12,6 +12,8 @@
 #ifndef SESSION_H_
 #define SESSION_H_
 
+#include <mutex>
+
 #include "configs.h"
 #include "tcpclient.h"
 #include "base.h"
@@ -30,13 +32,24 @@ typedef struct {
 } LoginInfo;
 
 
-class Session
+class ISession
+{
+public:
+    virtual void OpenNewSession()=0;
+    virtual void Close()=0;
+    virtual unsigned GetPrivilegies()=0;
+};
+
+
+class Session: public ISession
 {
 public:
     Session(const shared_ptr<ITcpClient> &client, const shared_ptr<IConfigs> &cfg,
-            const shared_ptr<IUsersBase> &ub);
+            const shared_ptr<IUsersBase> &ub, mutex &mtx);
 
     void OpenNewSession();
+
+    void Close();
 
     unsigned GetPrivilegies();
 
@@ -45,6 +58,7 @@ private:
     const shared_ptr<IConfigs> cfg_;
     const shared_ptr<IUsersBase> ub_;
     unsigned priv_;
+    mutex &mtx_;
 
     inline void SetCurrentPriv(unsigned priv);
 };

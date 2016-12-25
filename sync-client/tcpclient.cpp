@@ -1,4 +1,4 @@
-// Cloud: sync client application
+// Cloud: storage application
 //
 // Copyright (C) 2016 Sergey Denisov.
 // Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
@@ -31,6 +31,14 @@ void TcpClient::Connect(const string &ip, unsigned port)
     int ret_val;
     struct sockaddr_in sock_addr;
 
+#ifdef _WIN32
+    WSADATA wsaData;
+    WORD version_wanted = MAKEWORD(1, 1);
+
+    if (WSAStartup(version_wanted, &wsaData) != 0)
+        throw string("Fail WSA init.");
+#endif
+
     memset(&sock_addr, 0x00, sizeof(sock_addr));
     sock_addr.sin_family = AF_INET;
     sock_addr.sin_addr.s_addr = inet_addr(ip.c_str());
@@ -40,21 +48,21 @@ void TcpClient::Connect(const string &ip, unsigned port)
     if (client_ == INVALID_SOCKET)
         throw string("Can not create client socket.");
 
-    ret_val = ::connect(client_, reinterpret_cast<struct sockaddr *>(&sock_addr), sizeof(sock_addr));
+    ret_val = ::connect(client_, reinterpret_cast<struct sockaddr*>(&sock_addr), sizeof(sock_addr));
     if (ret_val == SOCKET_ERROR)
         throw string("Can not connect to server.");
 }
 
 void TcpClient::Send(const void *data, size_t len) const
 {
-    int retVal = 0;
+    int ret_val = 0;
 
     for (;;) {
-        retVal = ::send(client_, reinterpret_cast<const char *>(data), len, 0);
-        if (retVal == SOCKET_ERROR)
+        ret_val = ::send(client_, reinterpret_cast<const char*>(data), len, 0);
+        if (ret_val == SOCKET_ERROR)
             throw string("Fail sending data.");
 
-        if (retVal == static_cast<int>(len))
+        if (ret_val == static_cast<int>(len))
             break;
     }
 }
@@ -70,8 +78,20 @@ void TcpClient::Recv(void *data, size_t len) const
 
 void TcpClient::Close() const
 {
-    if (client_ != INVALID_SOCKET) {
+    if (client_ != 0) {
         ::shutdown(client_, 1);
+#ifdef _WIN32
+        closesocket(client_);
+        if (WSACleanup() == SOCKET_ERROR) {
+            if (WSAGetLastError() == WSAEINPROGRESS) {
+#ifndef _WIN32_WCE
+                WSACancelBlockingCall();
+#endif
+                WSACleanup();
+            }
+        }
+#else
         ::close(client_);
+#endif
     }
 }

@@ -10,6 +10,7 @@
 
 
 #include <iostream>
+#include <memory>
 
 #include "base.h"
 
@@ -18,6 +19,11 @@ typedef struct {
     string passwd;
     bool result;
 } VerifyData;
+
+typedef struct {
+    shared_ptr<File> file;
+    bool result;
+} VerifyFileData;
 
 
 static int ExistsCb(void *data, int argc, char **argv, char **col_name)
@@ -112,6 +118,83 @@ bool UsersBase::Verify(const User &user)
 }
 
 void UsersBase::Close()
+{
+    sqlite3_close(base_);
+}
+
+void FilesBase::Open(const string &filename)
+{
+    int ret_val;
+
+    ret_val = sqlite3_open(filename.c_str(), &base_);
+    if(ret_val)
+        throw string("Can not connect to database.");
+}
+
+void FilesBase::AddFile(const File &file)
+{
+    int ret_val;
+    char *err_msg = 0;
+
+    string sql = "INSERT INTO files(name,size,modify,hash) VALUES (\"" + file.filename
+                 + "\", " + to_string(file.size) + ", \"" + file.modify + "\", \""
+                 + file.hash + "\")";
+
+    ret_val = sqlite3_exec(base_, sql.c_str(), nullptr, nullptr, &err_msg);
+    if (ret_val != SQLITE_OK) {
+        string err(err_msg);
+        sqlite3_free(err_msg);
+        throw string("FilesBase addfile: " + err);
+    }
+}
+
+bool FilesBase::Exists(const File &file)
+{
+    int ret_val;
+    bool exists;
+    char *err_msg = 0;
+
+    string sql = "SELECT * FROM files WHERE name=\"" + file.filename + "\"";
+
+    ret_val = sqlite3_exec(base_, sql.c_str(), ExistsCb, reinterpret_cast<void*>(&exists), &err_msg);
+    if (ret_val != SQLITE_OK) {
+        string err(err_msg);
+        sqlite3_free(err_msg);
+        throw string("FilesBase exists: " + err);
+    }
+    return exists;
+}
+
+static int VerifyFileCb(void *data, int argc, char **argv, char **col_name)
+{
+    VerifyFileData *verify = reinterpret_cast<VerifyFileData*>(data);
+
+    if (string(argv[3]) == verify->file->modify && string(argv[4]) == verify->file->hash)
+        verify->result = true;
+    else
+        verify->result = false;
+    return 0;
+}
+
+bool FilesBase::Verify(const File &file)
+{
+    int ret_val;
+    char *err_msg = 0;
+    VerifyFileData data;
+
+    data.file = make_shared<File>(file);
+    string sql = "SELECT * FROM files WHERE name=\"" + file.filename + "\"";
+
+    ret_val = sqlite3_exec(base_, sql.c_str(), VerifyFileCb, reinterpret_cast<void*>(&data), &err_msg);
+    if (ret_val != SQLITE_OK) {
+        string err(err_msg);
+        sqlite3_free(err_msg);
+        throw string("FilesBase verify: " + err);
+    }
+    return data.result;
+}
+
+void FilesBase::Close()
 {
     sqlite3_close(base_);
 }

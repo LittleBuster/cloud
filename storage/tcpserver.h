@@ -15,9 +15,9 @@
 #include <memory>
 #include <thread>
 
-#ifdef WIN32
-    #include <Windows.h>
+#if defined _WIN32
     #include <Winsock2.h>
+    #include <Windows.h>
 #else
     #include <sys/types.h>
     #include <sys/socket.h>

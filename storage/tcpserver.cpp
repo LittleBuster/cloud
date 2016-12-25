@@ -19,7 +19,7 @@ void TcpServer::Start(unsigned port, unsigned max_clients)
     int ret_val;
     struct sockaddr_in sock_addr;
 
-#ifdef WIN32
+#ifdef _WIN32
     WSADATA wsaData;
     WORD version_wanted = MAKEWORD(1, 1);
 
@@ -49,7 +49,7 @@ void TcpServer::Start(unsigned port, unsigned max_clients)
     for (;;) {
         SOCKET client_socket = accept(sock_, NULL, NULL);
 
-        if (client_socket == SOCKET_ERROR) {
+        if (client_socket == 0) {
             AcceptError();
             continue;
         }
@@ -61,16 +61,19 @@ void TcpServer::Start(unsigned port, unsigned max_clients)
 
     if (sock_ != INVALID_SOCKET) {
         ::shutdown(sock_, 1);
-        ::close(sock_);
-    }
-#ifdef WIN32
-    if (WSACleanup() == SOCKET_ERROR) {
-        if (WSAGetLastError() == WSAEINPROGRESS) {
+    
+#ifdef _WIN32
+        closesocket(sock_);
+        if (WSACleanup() == SOCKET_ERROR) {
+            if (WSAGetLastError() == WSAEINPROGRESS) {
 #ifndef _WIN32_WCE
-            WSACancelBlockingCall();
+                WSACancelBlockingCall();
 #endif
-            WSACleanup();
+                WSACleanup();
+            }
         }
-    }
+#else
+        ::close(sock_);
 #endif
+    }
 }

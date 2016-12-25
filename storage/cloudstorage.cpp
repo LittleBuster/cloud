@@ -17,15 +17,17 @@
 #include "session.h"
 
 
-CloudStorage::CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log, const shared_ptr<IUsersBase> &users_base):
-                           cfg_(move(cfg)), log_(move(log)), users_base_(move(users_base))
+CloudStorage::CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log, const shared_ptr<IUsersBase> &users_base, const shared_ptr<IFilesBase> &files_base):
+                           cfg_(move(cfg)), log_(move(log)), users_base_(move(users_base)),
+                           files_base_(move(files_base))
 {
 }
 
 void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
 {
     Command cmd;
-    auto session = make_shared<Session>(client, cfg_, users_base_);
+    bool current = true;
+    auto session = make_shared<Session>(client, cfg_, users_base_, mtx_);
 
     while (true) {
         try {
@@ -40,8 +42,13 @@ void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
             case CMD_LOGIN: {
                 try {
                     session->OpenNewSession();
+                    if (session->GetPrivilegies() == PV_ADMIN)
+                        cout << "New client [ADMIN] connected." << endl;
+                    else
+                        cout << "New client [USER] connected." << endl;
                 }
                 catch (const string &err) {
+                    mtx_.unlock();
                     log_->Local("Checking user: " + err, LOG_ERROR);
                     return;
                 }
@@ -49,22 +56,60 @@ void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
             }
             case CMD_SEND_FILE: {
                 FileInfo info;
+                File file;
+                Command answ;
                 const auto &syc = cfg_->GetSyncCfg();
+                const auto &fbc = cfg_->GetFilesBaseCfg();
 
-                cout << "Receiving new file..." << endl;
                 try {
-                    client->Recv(&info, sizeof(FileInfo));
+                    client->Recv(&info, sizeof(info));
 
+                    file.filename = string(info.filename);
+                    file.size = info.size;
+                    file.modify = string(info.modify_time);
+                    file.hash = string(info.hash);
+
+                    mtx_.lock();
+                    files_base_->Open(fbc.path);
+                    if (files_base_->Exists(file)) {
+                        if (files_base_->Verify(file)) {
+                            files_base_->Close();
+                            mtx_.unlock();
+
+                            answ.code = ANSW_NOTHING;
+                            client->Send(&answ, sizeof(answ));
+                            break;
+                        }
+                        else
+                            cout << "File has depricated." << endl;
+                    }
+                    else
+                        cout << "File not found." << endl;
+                    current = false;
+
+                    files_base_->Close();
+                    mtx_.unlock();
+
+                    answ.code = ANSW_NEED_UPLOAD;
+                    client->Send(&answ, sizeof(answ));
+
+                    // Show info
+                    cout << "Receiving: " << file.filename << " " << file.size << " " << file.modify << endl;
+
+                    // Receiving file from client
                     FileReceiver fr(syc.path + string(info.filename), info.size);
                     fr.Download(client);
+
+                    mtx_.lock();
+                    files_base_->Open(fbc.path);
+                    files_base_->AddFile(file);
+                    files_base_->Close();
+                    mtx_.unlock();
                 }
                 catch (const string &err) {
-                    log_->Local(err, LOG_ERROR);
-                }
-                cout << info.filename << endl
-                     << info.size << endl
-                     << info.modify_time << endl
-                     << info.hash << endl;
+                    mtx_.unlock();
+                    log_->Local("Receiving file: " + err, LOG_ERROR);
+                }                
                 break;
             }
 
@@ -73,7 +118,14 @@ void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
             }
 
             case CMD_EXIT: {
-                cout << "Client disconnected." << endl;
+                if (current)
+                    cout << "All files are current." << endl;
+
+                if (session->GetPrivilegies() == PV_ADMIN)
+                    cout << "Client [ADMIN] disconnected." << endl;
+                else
+                    cout << "Client [USER] disconnected." << endl;
+                session->Close();
                 return;
                 break;
             }

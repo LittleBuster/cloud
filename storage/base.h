@@ -55,4 +55,40 @@ private:
 };
 
 
+typedef struct {
+    unsigned long size;
+    string hash;
+    string filename;
+    string modify;
+} File;
+
+
+class IFilesBase
+{
+public:
+    virtual void Open(const string &filename)=0;
+    virtual void AddFile(const File &file)=0;
+    virtual bool Exists(const File &file)=0;
+    virtual bool Verify(const File &file)=0;
+    virtual void Close()=0;
+};
+
+
+class FilesBase: public IFilesBase
+{
+public:
+    void Open(const string &filename);
+
+    void AddFile(const File &file);
+
+    bool Exists(const File &file);
+
+    bool Verify(const File &file);
+
+    void Close();
+
+private:
+    sqlite3 *base_;
+};
+
 #endif

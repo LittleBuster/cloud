@@ -67,16 +67,29 @@ void Session::OpenNewSession()
     const auto& sc = cfg_->GetServerCfg();
 
     client_->Connect(sc.ip, sc.port);
-
     cmd.code = CMD_LOGIN;
     client_->Send(&cmd, sizeof(cmd));
     client_->Send(&login_info_, sizeof(login_info_));
     client_->Recv(&answ, sizeof(answ));
 
-    client_->Close();
-
-    if (cmd.code != ANSW_LOGIN_OK)
-        throw string("Bad user or password!");
+    switch (answ.code) {
+        case PV_UNKNOWN: {
+            throw string("User does not exists!");
+            break;
+        }
+        case PV_ERROR: {
+            throw string("Bad user password!");
+            break;
+        }
+        case PV_USER: {
+            cout << "User authorized. Priv: USER." << endl;
+            break;
+        }
+        case PV_ADMIN: {
+            cout << "User authorized. Priv: ADMIN." << endl;
+            break;
+        }
+    }
 }
 
 void Session::CloseSession()

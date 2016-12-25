@@ -12,6 +12,8 @@
 #ifndef CLOUD_STORAGE_H_
 #define CLOUD_STORAGE_H_
 
+#include <mutex>
+
 #include "tcpserver.h"
 #include "configs.h"
 #include "log.h"
@@ -36,7 +38,8 @@ public:
 class CloudStorage final: public ICloudStorage, public TcpServer
 {
 public:
-    CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log, const shared_ptr<IUsersBase> &users_base);
+    CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log, const shared_ptr<IUsersBase> &users_base,
+                 const shared_ptr<IFilesBase> &files_base);
 
     void Start(unsigned port, unsigned max_clients) override final { TcpServer::Start(port, max_clients); }
 
@@ -44,6 +47,8 @@ private:
     const shared_ptr<IConfigs> cfg_;
     const shared_ptr<ILog> log_;
     const shared_ptr<IUsersBase> users_base_;
+    const shared_ptr<IFilesBase> files_base_;
+    mutex mtx_;
 
     virtual void NewSession(shared_ptr<ITcpClient> client) override final;
 

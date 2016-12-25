@@ -9,6 +9,8 @@
 // of the Licence, or (at your option) any later version.
 
 
+#include <ctime>
+
 #include "timer.h"
 
 

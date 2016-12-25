@@ -1,4 +1,4 @@
-// Cloud: sync client application
+// Cloud: storage application
 //
 // Copyright (C) 2016 Sergey Denisov.
 // Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
@@ -14,9 +14,9 @@
 
 #include <memory>
 
-#ifdef WIN32
-    #include <Windows.h>
-    #include <Winsock2.h>
+#ifdef _WIN32
+	#include <Winsock2.h>
+    #include <Windows.h>    
 #else
     #include <sys/types.h>
     #include <sys/socket.h>

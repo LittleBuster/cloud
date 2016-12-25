@@ -23,7 +23,9 @@ App::App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
 
 int App::start()
 {
-    cout << "Starting sync client..." << endl;
+    string login;
+    string passwd;
+
     log_->SetLogFile("sync.log");
 
     try {
@@ -36,14 +38,21 @@ int App::start()
 
     const auto &syc = cfg_->GetSyncCfg();
 
+    cout << "Login: ";
+    cin >> login;
+    cout << "Passwd: ";
+    cin >> passwd;
+
     try {
-        session_->Login("test", "123");
+        session_->Login(login, passwd);
     } catch (const string &err) {
         log_->Local("Login: " + err, LOG_ERROR);
         return -1;
     }
     cout << "Login ok." << endl;
+    cout << "Starting sync client..." << endl;
 
-    master_watch_->Start(syc.interval);
+    if (session_->GetPrivilegies() == PV_ADMIN)
+        master_watch_->Start(syc.interval);
     return 0;
 }

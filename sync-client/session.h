@@ -1,16 +1,18 @@
-// Cloud: sync client application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
-#ifndef SESSION_H_
-#define SESSION_H_
+#ifndef SESSION_H
+#define SESSION_H
 
 #include <string>
 #include <memory>
@@ -37,11 +39,11 @@ typedef struct {
 class ISession
 {
 public:
-    virtual void Login(const string &login, const string &passwd)=0;
-    virtual void OpenNewSession()=0;
-    virtual void CloseSession()=0;
-    virtual const LoginInfo& GetLoginInfo() const=0;
-    virtual unsigned GetPrivilegies() const=0;
+    virtual void login(const string &login, const string &passwd)=0;
+    virtual void openNewSession() const=0;
+    virtual void close() const=0;
+    virtual const LoginInfo& getLoginInfo() const=0;
+    virtual unsigned getPrivilegies() const=0;
 };
 
 
@@ -50,23 +52,37 @@ class Session: public ISession
 public:
     Session(const shared_ptr<ITcpClient> &client, const shared_ptr<IConfigs> &cfg);
 
-    void Login(const string &login, const string &passwd);
+    /**
+     * First sending login info
+     * @login: name of user
+     * @passwd: user password
+     *
+     * throw: error if login fail
+     */
+    void login(const string &login, const string &passwd);
 
-    void OpenNewSession();
+    /**
+     * Regular sending exists login info
+     *
+     * throw: error if login fail
+     */
+    void openNewSession() const;
 
-    void CloseSession();
+    /*
+     * Sending close session information
+     */
+    void close() const;
 
-    const LoginInfo& GetLoginInfo() const;
-
-    unsigned GetPrivilegies() const;
+    const LoginInfo& getLoginInfo() const;
+    unsigned getPrivilegies() const;
 
 private:
     const shared_ptr<ITcpClient> client_;
     const shared_ptr<IConfigs> cfg_;
-    LoginInfo login_info_;
+    LoginInfo loginInfo_;
     unsigned priv_;
 
-    void GeneratePasswordHash(char *out_hash, const char *passwd);
+    void genPasswdHash(char *outHash, const char *passwd);
 };
 
 

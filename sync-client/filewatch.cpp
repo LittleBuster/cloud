@@ -1,28 +1,28 @@
-// Cloud: sync client application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
 #include <vector>
 #include <ctime>
 #include <iostream>
+#include <sstream>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include <boost/filesystem.hpp>
 
 #include "filewatch.h"
 #include "filehash.h"
 #include "network.h"
-#include "ext.h"
+
+namespace fs = boost::filesystem;
 
 
 MasterWatch::MasterWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
@@ -31,98 +31,49 @@ MasterWatch::MasterWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs>
 {
 }
 
-vector<File> MasterWatch::GetFileList(const string &path)
+void MasterWatch::handler()
 {
-    DIR *dir;
-    vector<File> local_files;
-    struct dirent *file_cur;
-
-    if ((dir = opendir(path.c_str())) == NULL)
-        throw string("Fail open path \"" + path);
-
-    while ((file_cur = readdir(dir)) != NULL) {
-        struct stat sbuf;
-        File file;
-        string full_path = path;
-
-        file.name = string(file_cur->d_name);
-        full_path += file.name;
-
-        /*
-         * Ignoring hidden files and prev folders
-         */
-        if (file.name == "." || file.name == ".." || file.name[0] == '.')
-            continue;
-
-        /*
-         * Is it a folder?
-         */
-        if (ext::pos(file.name, '.') == -1)
-            continue;
-
-        int fd = open(full_path.c_str(), O_RDONLY);
-        if (fd == -1)
-            continue;
-
-        /*
-         * Getting size and last modify date
-         */
-        fstat(fd, &sbuf);
-        file.modify = ext::date_to_str(&sbuf.st_mtime);
-        file.size = sbuf.st_size;
-        close(fd);        
-
-        /*
-         * Generating hash of file
-         */
-        FileHash hash(full_path);
-        file.hash = hash.Generate();
-
-        local_files.push_back(file);
-    }
-    closedir(dir);
-    return local_files;
-}
-
-void MasterWatch::Handler()
-{
-    const auto &syc = cfg_->GetSyncCfg();
-    vector<File> local_files;
     Command cmd;
+    vector<fs::path> files;
+    const auto &syc = cfg_->getSyncCfg();
 
     try {
-        local_files = GetFileList(syc.path);
-        session_->OpenNewSession();
+        copy(fs::directory_iterator(fs::path(syc.path)), fs::directory_iterator(), back_inserter(files));
+        session_->openNewSession();
     }
     catch (const string &err) {
-        log_->Local("FileWatch: " + err, LOG_ERROR);
+        log_->local("FileWatch: " + err, LOG_ERROR);
         return;
     }
 
-    for (const File &file : local_files) {
+    for (const fs::path &file : files) {
         FileInfo info;
+        stringstream sstream;
 
-        strncpy(info.filename, file.name.c_str(), 255);
-        strncpy(info.hash, file.hash.c_str(), 512);
-        strncpy(info.modify_time, file.modify.c_str(), 49);
-        info.size = file.size;
+        if (!fs::is_regular_file(file))
+            continue;
+
+        strncpy(info.filename, file.filename().string().c_str(), 255);
+        info.size = fs::file_size(file);
+        sstream << fs::last_write_time(file);
+        strncpy(info.modify_time, sstream.str().c_str(), 50);
 
         try {
             cmd.code = CMD_SEND_FILE;
-            client_->Send(&cmd, sizeof(cmd));
-            client_->Send(&info, sizeof(info));
+            client_->send(&cmd, sizeof(cmd));
+            client_->send(&info, sizeof(info));
 
             // Receiving answ
-            client_->Recv(&cmd, sizeof(cmd));
+            client_->recv(&cmd, sizeof(cmd));
             if (cmd.code == ANSW_NEED_UPLOAD) {
-                FileSender fs(syc.path + file.name, file.size);
-                fs.Upload(client_);
+                FileSender fs(syc.path + file.filename().string(), info.size);
+                fs.upload(client_);
             }
         }
         catch (const string &err) {
-            log_->Local(err, LOG_ERROR);
+            log_->local(err, LOG_ERROR);
             continue;
         }
     }
-    session_->CloseSession();
+    session_->close();
 }

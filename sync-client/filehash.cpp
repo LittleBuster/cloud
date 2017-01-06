@@ -1,12 +1,14 @@
-// Cloud: sync client application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
 #include <string.h>
@@ -16,7 +18,7 @@
 #include "filehash.h"
 
 
-string FileHash::HashToStr(const unsigned char *hash)
+string FileHash::hashToStr(const unsigned char *hash)
 {
     string out = "";
 
@@ -36,10 +38,11 @@ FileHash::FileHash(const string &filename)
 
 FileHash::~FileHash()
 {
-    file_.close();
+    if (file_.is_open())
+        file_.close();
 }
 
-string FileHash::Generate()
+string FileHash::generate()
 {
     char buf[512];
     SHA512_CTX sha;
@@ -54,5 +57,5 @@ string FileHash::Generate()
     }
 
     SHA512_Final(out, &sha);
-    return HashToStr(out);
+    return hashToStr(out);
 }

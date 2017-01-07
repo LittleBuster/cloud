@@ -1,12 +1,14 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
 #include <iostream>
@@ -20,20 +22,20 @@ App::App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
 {
 }
 
-int App::Start()
+int App::start()
 {
     cout << "Starting Cloud Storage server..." << endl;
-    log_->SetLogFile("storage.log");
+    log_->setLogFile("storage.log");
 
     try {
-        cfg_->Load("storage.cfg");
+        cfg_->load("storage.cfg");
     }
     catch (const string &err) {
-        log_->Local("Configs: " + err, LOG_ERROR);
+        log_->local("Configs: " + err, LOG_ERROR);
         return -1;
     }
 
-    const auto &sc = cfg_->GetServerCfg();
-    storage_->Start(sc.port, sc.max_users);
+    const auto &sc = cfg_->getServerCfg();
+    storage_->start(sc.port, sc.max_users);
     return 0;
 }

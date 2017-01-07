@@ -1,12 +1,14 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
 #include <iostream>
@@ -23,7 +25,7 @@ CloudStorage::CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILo
 {
 }
 
-void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
+void CloudStorage::newSession(shared_ptr<ITcpClient> client)
 {
     Command cmd;
     bool current = true;
@@ -31,25 +33,25 @@ void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
 
     while (true) {
         try {
-            client->Recv(&cmd, sizeof(cmd));
+            client->recv(&cmd, sizeof(cmd));
         }
         catch (const string &err) {
-             log_->Local("Receiving command: " + err, LOG_ERROR);
+             log_->local("Receiving command: " + err, LOG_ERROR);
             return;
         }
 
         switch (cmd.code) {
             case CMD_LOGIN: {
                 try {
-                    session->OpenNewSession();
-                    if (session->GetPrivilegies() == PV_ADMIN)
+                    session->openNewSession();
+                    if (session->getPrivilegies() == PV_ADMIN)
                         cout << "New client [ADMIN] connected." << endl;
                     else
                         cout << "New client [USER] connected." << endl;
                 }
                 catch (const string &err) {
                     mtx_.unlock();
-                    log_->Local("Checking user: " + err, LOG_ERROR);
+                    log_->local("Checking user: " + err, LOG_ERROR);
                     return;
                 }
                 break;
@@ -58,11 +60,11 @@ void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
                 FileInfo info;
                 File file;
                 Command answ;
-                const auto &syc = cfg_->GetSyncCfg();
-                const auto &fbc = cfg_->GetFilesBaseCfg();
+                const auto &syc = cfg_->getSyncCfg();
+                const auto &fbc = cfg_->getFilesBaseCfg();
 
                 try {
-                    client->Recv(&info, sizeof(info));
+                    client->recv(&info, sizeof(info));
 
                     file.filename = string(info.filename);
                     file.size = info.size;
@@ -70,14 +72,14 @@ void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
                     file.hash = string(info.hash);
 
                     mtx_.lock();
-                    files_base_->Open(fbc.path);
-                    if (files_base_->Exists(file)) {
-                        if (files_base_->Verify(file)) {
-                            files_base_->Close();
+                    files_base_->open(fbc.path);
+                    if (files_base_->exists(file)) {
+                        if (files_base_->verify(file)) {
+                            files_base_->close();
                             mtx_.unlock();
 
                             answ.code = ANSW_NOTHING;
-                            client->Send(&answ, sizeof(answ));
+                            client->send(&answ, sizeof(answ));
                             break;
                         }
                         else
@@ -87,28 +89,28 @@ void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
                         cout << "File not found." << endl;
                     current = false;
 
-                    files_base_->Close();
+                    files_base_->close();
                     mtx_.unlock();
 
                     answ.code = ANSW_NEED_UPLOAD;
-                    client->Send(&answ, sizeof(answ));
+                    client->send(&answ, sizeof(answ));
 
                     // Show info
                     cout << "Receiving: " << file.filename << " " << file.size << " " << file.modify << endl;
 
                     // Receiving file from client
                     FileReceiver fr(syc.path + string(info.filename), info.size);
-                    fr.Download(client);
+                    fr.download(client);
 
                     mtx_.lock();
-                    files_base_->Open(fbc.path);
-                    files_base_->AddFile(file);
-                    files_base_->Close();
+                    files_base_->open(fbc.path);
+                    files_base_->addFile(file);
+                    files_base_->close();
                     mtx_.unlock();
                 }
                 catch (const string &err) {
                     mtx_.unlock();
-                    log_->Local("Receiving file: " + err, LOG_ERROR);
+                    log_->local("Receiving file: " + err, LOG_ERROR);
                 }                
                 break;
             }
@@ -121,11 +123,11 @@ void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
                 if (current)
                     cout << "All files are current." << endl;
 
-                if (session->GetPrivilegies() == PV_ADMIN)
+                if (session->getPrivilegies() == PV_ADMIN)
                     cout << "Client [ADMIN] disconnected." << endl;
                 else
                     cout << "Client [USER] disconnected." << endl;
-                session->Close();
+                session->close();
                 return;
                 break;
             }
@@ -133,12 +135,12 @@ void CloudStorage::NewSession(shared_ptr<ITcpClient> client)
     }
 }
 
-void CloudStorage::AcceptError() const
+void CloudStorage::acceptError() const
 {
 
 }
 
-void CloudStorage::ServerStarted() const
+void CloudStorage::serverStarted() const
 {
 
 }

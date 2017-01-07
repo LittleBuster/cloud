@@ -1,12 +1,14 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
 #include "filetransfer.h"
@@ -26,7 +28,7 @@ FileSender::~FileSender()
         file_.close();
 }
 
-void FileSender::Upload(const shared_ptr<ITcpClient> &client)
+void FileSender::upload(const shared_ptr<ITcpClient> &client)
 {
     char buf[DATA_SIZE];
     unsigned long count = size_ / DATA_SIZE;
@@ -34,14 +36,14 @@ void FileSender::Upload(const shared_ptr<ITcpClient> &client)
 
     for (unsigned long i = 0; i < count; i++) {
         file_.read(buf, DATA_SIZE);
-        client->Send(buf, DATA_SIZE);
+        client->send(buf, DATA_SIZE);
     }
 
     char *last_buf = new char[last_block];
 
     try {
     	file_.read(last_buf, last_block);
-    	client->Send(last_buf, last_block);
+    	client->send(last_buf, last_block);
     }
     catch (const string &err) {
     	delete[] last_buf;
@@ -64,21 +66,21 @@ FileReceiver::~FileReceiver()
         file_.close();
 }
 
-void FileReceiver::Download(const shared_ptr<ITcpClient> &client)
+void FileReceiver::download(const shared_ptr<ITcpClient> &client)
 {
     char buf[DATA_SIZE];
     unsigned long count = size_ / DATA_SIZE;
     unsigned last_block = size_ % DATA_SIZE;
 
     for (unsigned long i = 0; i < count; i++) {
-        client->Recv(buf, DATA_SIZE);
+        client->recv(buf, DATA_SIZE);
         file_.write(buf, DATA_SIZE);
     }
 
     char *last_buf = new char[last_block];
 
     try {
-        client->Recv(last_buf, last_block);
+        client->recv(last_buf, last_block);
         file_.write(last_buf, last_block);
     }
     catch (const string &err) {

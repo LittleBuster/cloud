@@ -10,60 +10,57 @@
 
 
 #include <string.h>
-#include <fstream>
 #include <iostream>
 
 #include "configs.h"
 #include "ext.h"
 
 
-string Configs::ReadString(ifstream &is) const
+ConfigsFile::ConfigsFile(const string &filename)
 {
-    char line[255];
-
-    while (1) {
-        memset(line, 0x00, 255);
-        is.getline(line, 255);
-        if (line[0] != '#' && line[0] != '/' && line[0] != '\n' && string(line) != "")
-            break;
-    }
-    const auto &param = ext::split_string(string(line), '=');
-    return get<1>(param);
+    file_.open(filename);
 }
 
-int Configs::ReadInt(ifstream &is) const
+ConfigsFile::~ConfigsFile()
+{
+    if (file_.is_open())
+        file_.close();
+}
+
+string ConfigsFile::readString()
 {
     char line[255];
 
     while (1) {
-        is.getline(line, 255);
+        file_.getline(line, 255);
         if (line[0] != '#' && line[0] != '/' && line[0] != '\n' && string(line) != "")
             break;
     }
+    const auto out = ext::split_string(line, '=');
+    return get<1>(out);
+}
 
-    const auto &param = ext::split_string(string(line), '=');
-    return atoi(get<1>(param).c_str());
+bool ConfigsFile::isOpen() const
+{
+    return file_.is_open();
 }
 
 
 void Configs::Load(const string &filename)
 {
-    ifstream ifs;
+    ConfigsFile cfg(filename);
 
-    ifs.open(filename);
-    if (!ifs.is_open())
+    if (!cfg.isOpen())
         throw string("File not found.");
 
     try {
-        sc_.port = static_cast<unsigned>(ReadInt(ifs));
-        sc_.max_users = static_cast<unsigned>(ReadInt(ifs));
-        syc_.path = ReadString(ifs);
-        ubc_.path = ReadString(ifs);
-        fbc_.path = ReadString(ifs);
+        sc_.port = static_cast<unsigned>(atoi(cfg.readString().c_str()));
+        sc_.max_users = static_cast<unsigned>(atoi(cfg.readString().c_str()));
+        syc_.path = cfg.readString();
+        ubc_.path = cfg.readString();
+        fbc_.path = cfg.readString();
     }
     catch (...) {
-        ifs.close();
         throw string("Fail reading configs values.");
     }
-    ifs.close();
 }

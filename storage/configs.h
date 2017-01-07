@@ -13,6 +13,7 @@
 #define CONFIGS_H_
 
 #include <memory>
+#include <fstream>
 
 using namespace std;
 
@@ -31,6 +32,21 @@ typedef struct {
 } BaseCfg;
 
 
+/*
+ * Configs file decorator
+ */
+class ConfigsFile
+{
+public:
+    ConfigsFile(const string &filename);
+    ~ConfigsFile();
+    string readString();
+    bool isOpen() const;
+
+private:
+    ifstream file_;
+};
+
 class IConfigs
 {
 public:
@@ -46,11 +62,8 @@ class Configs: public IConfigs
 {
 public:
     inline const ServerCfg& GetServerCfg(void) const { return sc_; }
-
     inline const SyncCfg& GetSyncCfg(void) const { return syc_; }
-
     inline const BaseCfg& GetUsersBaseCfg(void) const { return ubc_; }
-
     inline const BaseCfg& GetFilesBaseCfg(void) const { return fbc_; }
 
     /**
@@ -66,10 +79,6 @@ private:
     SyncCfg syc_;
     BaseCfg ubc_;
     BaseCfg fbc_;
-
-    string ReadString(ifstream &is) const;
-
-    int ReadInt(ifstream &is) const;
 };
 
 

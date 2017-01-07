@@ -10,26 +10,24 @@
  * of the Licence, or (at your option) any later version.
  */
 
-#ifndef APP_H
-#define APP_H
 
-#include "log.h"
-#include "configs.h"
-#include "cloudstorage.h"
+#include "watcher.h"
+
+#include <boost/assert.hpp>
 
 
-class App
+void Watcher::startWatch(unsigned delay) const
 {
-public:
-    App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg, const shared_ptr<ICloudStorage> &storage);
+    timer_->start(delay);
+}
 
-    int start();
+void Watcher::stopWatch() const
+{
+    timer_->stop();
+}
 
-private:
-    const shared_ptr<ILog> log_;
-    const shared_ptr<IConfigs> cfg_;
-    const shared_ptr<ICloudStorage> storage_;
-};
-
-
-#endif
+void Watcher::setWatcher(const shared_ptr<ITimer> &tmr)
+{
+    BOOST_ASSERT(tmr != nullptr);
+    timer_ = tmr;
+}

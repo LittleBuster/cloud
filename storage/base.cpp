@@ -1,12 +1,14 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
 #include <iostream>
@@ -56,7 +58,7 @@ static int PrivCb(void *data, int argc, char **argv, char **col_name)
 }
 
 
-void UsersBase::Open(const string &filename)
+void UsersBase::open(const string &filename)
 {
     int ret_val;
 
@@ -65,7 +67,7 @@ void UsersBase::Open(const string &filename)
         throw string("Can not connect to database.");
 }
 
-bool UsersBase::Exists(const User &user)
+bool UsersBase::exists(const User &user)
 {
     int ret_val;
     bool exists;
@@ -82,7 +84,7 @@ bool UsersBase::Exists(const User &user)
     return exists;
 }
 
-unsigned UsersBase::GetUserPriv(const User &user)
+unsigned UsersBase::getUserPriv(const User &user)
 {
     int ret_val;
     unsigned priv;
@@ -99,7 +101,7 @@ unsigned UsersBase::GetUserPriv(const User &user)
     return priv;
 }
 
-bool UsersBase::Verify(const User &user)
+bool UsersBase::verify(const User &user)
 {
     int ret_val;
     char *err_msg = 0;
@@ -117,12 +119,12 @@ bool UsersBase::Verify(const User &user)
     return data.result;
 }
 
-void UsersBase::Close()
+void UsersBase::close()
 {
     sqlite3_close(base_);
 }
 
-void FilesBase::Open(const string &filename)
+void FilesBase::open(const string &filename)
 {
     int ret_val;
 
@@ -131,7 +133,7 @@ void FilesBase::Open(const string &filename)
         throw string("Can not connect to database.");
 }
 
-void FilesBase::AddFile(const File &file)
+void FilesBase::addFile(const File &file)
 {
     int ret_val;
     char *err_msg = 0;
@@ -148,7 +150,7 @@ void FilesBase::AddFile(const File &file)
     }
 }
 
-bool FilesBase::Exists(const File &file)
+bool FilesBase::exists(const File &file)
 {
     int ret_val;
     bool exists;
@@ -176,7 +178,7 @@ static int VerifyFileCb(void *data, int argc, char **argv, char **col_name)
     return 0;
 }
 
-bool FilesBase::Verify(const File &file)
+bool FilesBase::verify(const File &file)
 {
     int ret_val;
     char *err_msg = 0;
@@ -194,7 +196,7 @@ bool FilesBase::Verify(const File &file)
     return data.result;
 }
 
-void FilesBase::Close()
+void FilesBase::close()
 {
     sqlite3_close(base_);
 }

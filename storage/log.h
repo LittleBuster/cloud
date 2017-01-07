@@ -1,16 +1,18 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
-#ifndef LOG_H_
-#define LOG_H_
+#ifndef LOG_H
+#define LOG_H
 
 
 #include <string>
@@ -29,8 +31,8 @@ typedef enum {
 class ILog
 {
 public:
-    virtual void SetLogFile(const string &filepath) = 0;
-    virtual void Local(const string &message, const LogType log_type) = 0;
+    virtual void setLogFile(const string &filepath) = 0;
+    virtual void local(const string &message, const LogType log_type) = 0;
 };
 
 
@@ -42,7 +44,7 @@ public:
     /*
      * Set path for saving log data in local file
      */
-    inline void SetLogFile(const string &filepath) { log_path_ = filepath; }
+    inline void setLogFile(const string &filepath) { logPath_ = filepath; }
 
     /**
      * Saving log data in local file
@@ -51,11 +53,11 @@ public:
      *
      * throw: error if fail access to file
      */
-    void Local(const string &message, const LogType log_type);
+    void local(const string &message, const LogType log_type);
 
 private:
-    string log_path_;
-    using ILog::SetLogFile;
+    string logPath_;
+    using ILog::setLogFile;
 
     /**
      * Create log string for writing to file
@@ -64,7 +66,7 @@ private:
      *
      * returns full log string width datetime and type
      */
-    string MakeLogMsg(const string &msg, const LogType type) const;
+    string makeLogMsg(const string &msg, const LogType type) const;
 };
 
 

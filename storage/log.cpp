@@ -1,12 +1,14 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
 #include <iostream>
@@ -16,11 +18,11 @@
 #include "ext.h"
 
 
-Log::Log(): log_path_("")
+Log::Log(): logPath_("")
 {
 }
 
-string Log::MakeLogMsg(const string &msg, const LogType type) const
+string Log::makeLogMsg(const string &msg, const LogType type) const
 {
     string out;
 
@@ -45,17 +47,17 @@ string Log::MakeLogMsg(const string &msg, const LogType type) const
     return out;
 }
 
-void Log::Local(const string &message, const LogType log_type)
+void Log::local(const string &message, const LogType log_type)
 {
-    const string& msg = MakeLogMsg(message, log_type);
+    const string& msg = makeLogMsg(message, log_type);
     cout << msg << endl;
 
-    if (log_path_ == "")
+    if (logPath_ == "")
         return;
 
     try {
         ofstream log;
-        log.open(log_path_, ios::out|ios::ate|ios::app);
+        log.open(logPath_, ios::out|ios::ate|ios::app);
         log << msg << "\n";
         log.close();
     }

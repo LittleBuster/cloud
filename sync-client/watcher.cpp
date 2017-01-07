@@ -11,24 +11,23 @@
  */
 
 
-#include "timer.h"
+#include "watcher.h"
+
+#include <boost/assert.hpp>
 
 
-void Timer::handler()
+void Watcher::startWatch(unsigned delay) const
 {
-    timer_->expires_at(timer_->expires_at() + boost::posix_time::seconds(delay_));
-    timer_->async_wait(bind(&Timer::handler, this));
+    timer_->start(delay);
 }
 
-void Timer::start(unsigned delay)
+void Watcher::stopWatch() const
 {
-    delay_ = delay;
-    timer_ = make_shared<deadline_timer>(io_, boost::posix_time::seconds(delay_));
-    timer_->async_wait(bind(&Timer::handler, this));
-    io_.run();
+    timer_->stop();
 }
 
-void Timer::stop()
+void Watcher::setWatcher(const shared_ptr<ITimer> &tmr)
 {
-    timer_.reset();
+    BOOST_ASSERT(tmr != nullptr);
+    timer_ = tmr;
 }

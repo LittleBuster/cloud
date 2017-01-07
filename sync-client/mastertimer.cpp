@@ -18,20 +18,21 @@
 
 #include <boost/filesystem.hpp>
 
-#include "filewatch.h"
 #include "filehash.h"
 #include "network.h"
+#include "mastertimer.h"
+#include "filehash.h"
 
 namespace fs = boost::filesystem;
 
 
-MasterWatch::MasterWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
+MasterTimer::MasterTimer(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
                      const shared_ptr<ITcpClient> &client, const shared_ptr<ISession> &session):
                      log_(move(log)), cfg_(move(cfg)), client_(move(client)), session_(move(session))
 {
 }
 
-void MasterWatch::handler()
+void MasterTimer::handler()
 {
     Command cmd;
     vector<fs::path> files;
@@ -46,6 +47,7 @@ void MasterWatch::handler()
         return;
     }
 
+    // Reading local directory
     for (const fs::path &file : files) {
         FileInfo info;
         stringstream sstream;
@@ -57,6 +59,14 @@ void MasterWatch::handler()
         info.size = fs::file_size(file);
         sstream << fs::last_write_time(file);
         strncpy(info.modify_time, sstream.str().c_str(), 50);
+
+        try {
+            FileHash fhash(syc.path + file.filename().string());
+            strncpy(info.hash, fhash.generate().c_str(), 512);
+        } catch(...) {
+            log_->local("Fail generating hash for file: " + file.filename().string(), LOG_WARNING);
+            continue;
+        }
 
         try {
             cmd.code = CMD_SEND_FILE;
@@ -77,5 +87,20 @@ void MasterWatch::handler()
         }
     }
     session_->close();
-    Timer::handler();
+
+    timer_->expires_at(timer_->expires_at() + boost::posix_time::seconds(delay_));
+    timer_->async_wait(bind(&MasterTimer::handler, this));
+}
+
+void MasterTimer::start(unsigned delay)
+{
+    delay_ = delay;
+    timer_ = make_shared<deadline_timer>(io_, boost::posix_time::seconds(delay_));
+    timer_->async_wait(bind(&MasterTimer::handler, this));
+    io_.run();
+}
+
+void MasterTimer::stop() const
+{
+    timer_->cancel();
 }

@@ -20,8 +20,9 @@
 
 
 App::App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
-         const shared_ptr<ITimer> &master_watch, const shared_ptr<ISession> &session): log_(move(log)),
-         cfg_(move(cfg)), masterWatch_(move(master_watch)), session_(move(session))
+         const shared_ptr<ITimer> &masterTimer, const shared_ptr<ISession> &session, const shared_ptr<IWatcher> &watcher): log_(move(log)),
+         cfg_(move(cfg)), masterTimer_(move(masterTimer)), session_(move(session)),
+         watcher_(move(watcher))
 {
 }
 
@@ -55,11 +56,14 @@ int App::start()
     }
     cout << "Login ok." << endl;
     cout << "Starting sync client..." << endl;
-
-    cout << "priv: " << session_->getPrivilegies() <<endl;
+    cout << "Privilegies: " << session_->getPrivilegies() <<endl;
 
     if (session_->getPrivilegies() == PV_ADMIN)
-        masterWatch_->start(syc.interval);
+        watcher_->setWatcher(masterTimer_);
+    else
+        //TODO: add slave timer
+        watcher_->setWatcher(masterTimer_);
+    watcher_->startWatch(syc.interval);
 
     for (;;) {
         boost::this_thread::sleep(boost::posix_time::seconds(1));

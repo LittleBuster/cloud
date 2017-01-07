@@ -10,11 +10,12 @@
  * of the Licence, or (at your option) any later version.
  */
 
-
-#ifndef FILE_WATCH_H
-#define FILE_WATCH_H
+#ifndef MASTER_TIMER_H
+#define MASTER_TIMER_H
 
 #include <vector>
+
+#include <boost/asio.hpp>
 
 #include "timer.h"
 #include "log.h"
@@ -23,30 +24,26 @@
 #include "tcpclient.h"
 #include "filetransfer.h"
 #include "session.h"
+#include "timer.h"
+
+using namespace std;
+using namespace boost::asio;
 
 
-typedef struct {
-    unsigned long size;
-    string name;
-    string hash;
-    string modify;    
-} File;
-
-typedef struct {
-    unsigned long size;
-    char hash[515];
-    char filename[255];
-    char modify_time[50];
-} FileInfo;
-
-
-class MasterWatch: public Timer
+/*
+ * Uploading local files to server
+ */
+class MasterTimer: public ITimer
 {
 public:
-    MasterWatch(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
-              const shared_ptr<ITcpClient> &client, const shared_ptr<ISession> &session);
+    MasterTimer(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &cfg,
+                const shared_ptr<ITcpClient> &client, const shared_ptr<ISession> &session);
 
     virtual void handler() override final;
+
+    void start(unsigned delay);
+
+    void stop() const;
 
 private:
     const shared_ptr<ILog> log_;
@@ -54,7 +51,9 @@ private:
     const shared_ptr<ITcpClient> client_;
     const shared_ptr<ISession> session_;
 
-    vector<File> getFileList(const string &path);
+    io_service io_;
+    shared_ptr<deadline_timer> timer_;
+    unsigned delay_;
 };
 
 

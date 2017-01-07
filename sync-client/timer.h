@@ -14,42 +14,21 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <boost/asio.hpp>
 
-
-using namespace std;
-using namespace boost::asio;
+typedef struct {
+    unsigned long size;
+    char hash[515];
+    char filename[255];
+    char modify_time[50];
+} FileInfo;
 
 
 class ITimer
 {
 public:
-    virtual void handler()=0;
+    virtual void handler() {}
     virtual void start(unsigned delay)=0;
-    virtual void stop()=0;
-};
-
-
-class Timer: public ITimer
-{
-public:
-    virtual void handler();
-
-    /**
-     * Starting timer with delay
-     * @delay: milleseconds
-     */
-    void start(unsigned delay);
-
-    /*
-     *  Stopping timer
-     */
-    void stop();
-
-private:
-    io_service io_;
-    shared_ptr<deadline_timer> timer_;
-    unsigned delay_;
+    virtual void stop() const=0;
 };
 
 

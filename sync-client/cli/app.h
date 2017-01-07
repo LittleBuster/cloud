@@ -16,23 +16,26 @@
 
 #include "../log.h"
 #include "../configs.h"
-#include "../filewatch.h"
+#include "../timer.h"
 #include "../session.h"
+#include "../watcher.h"
 
 
 class App
 {
 public:
     App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
-        const shared_ptr<ITimer> &master_watch, const shared_ptr<ISession> &session);
+        const shared_ptr<ITimer> &masterTimer, const shared_ptr<ISession> &session,
+        const shared_ptr<IWatcher> &watcher);
 
     int start();
 
 private:
     const shared_ptr<ILog> log_;
     const shared_ptr<IConfigs> cfg_;
-    const shared_ptr<ITimer> masterWatch_;
+    const shared_ptr<ITimer> masterTimer_;
     const shared_ptr<ISession> session_;
+    const shared_ptr<IWatcher> watcher_;
 };
 
 

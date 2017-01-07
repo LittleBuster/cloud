@@ -13,9 +13,11 @@
 #include "app.h"
 #include "../log.h"
 #include "../configs.h"
-#include "../filewatch.h"
+#include "../timer.h"
+#include "../mastertimer.h"
 #include "../tcpclient.h"
 #include "../session.h"
+#include "../watcher.h"
 
 
 int main()
@@ -23,9 +25,10 @@ int main()
     auto log = make_shared<Log>();
     auto cfg = make_shared<Configs>();
     auto client = make_shared<TcpClient>();
+    auto watcher = make_shared<Watcher>();
     auto session = make_shared<Session>(client, cfg);
-    auto masterWatch = make_shared<MasterWatch>(log, cfg, client, session);
-    auto app = make_shared<App>(log, cfg, masterWatch, session);
+    auto masterTimer = make_shared<MasterTimer>(log, cfg, client, session);
+    auto app = make_shared<App>(log, cfg, masterTimer, session, watcher);
 
     return app->start();
 }

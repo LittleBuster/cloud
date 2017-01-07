@@ -31,7 +31,7 @@ public:
 private:
     const shared_ptr<ILog> log_;
     const shared_ptr<IConfigs> cfg_;
-    const shared_ptr<ITimer> master_watch_;
+    const shared_ptr<ITimer> masterWatch_;
     const shared_ptr<ISession> session_;
 };
 

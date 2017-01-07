@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -march=native -Wall
 set(SRC_LIST main.cpp app.cpp ../session.cpp ../filetransfer.cpp ../filewatch.cpp ../configs.cpp ../log.cpp ../tcpclient.cpp ../timer.cpp ../filehash.cpp)
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
-target_link_libraries(${PROJECT_NAME} -lpthread -lcrypto -lboost_system -lboost_filesystem)
+target_link_libraries(${PROJECT_NAME} -lpthread -lcrypto -lboost_system -lboost_filesystem -lboost_thread)
 
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME} -lws2_32)

@@ -50,7 +50,7 @@ void MasterWatch::handler()
         FileInfo info;
         stringstream sstream;
 
-        if (!fs::is_regular_file(file))
+        if (fs::is_directory(file) || fs::is_empty(file) || fs::is_symlink(file))
             continue;
 
         strncpy(info.filename, file.filename().string().c_str(), 255);
@@ -67,6 +67,7 @@ void MasterWatch::handler()
             client_->recv(&cmd, sizeof(cmd));
             if (cmd.code == ANSW_NEED_UPLOAD) {
                 FileSender fs(syc.path + file.filename().string(), info.size);
+                cout << "Sending: " + file.filename().string() << endl;
                 fs.upload(client_);
             }
         }
@@ -76,4 +77,5 @@ void MasterWatch::handler()
         }
     }
     session_->close();
+    Timer::handler();
 }

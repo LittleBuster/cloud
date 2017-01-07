@@ -13,13 +13,15 @@
 
 #include <iostream>
 
+#include <boost/thread.hpp>
+
 #include "app.h"
 #include "../session.h"
 
 
 App::App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
          const shared_ptr<ITimer> &master_watch, const shared_ptr<ISession> &session): log_(move(log)),
-         cfg_(move(cfg)), master_watch_(move(master_watch)), session_(move(session))
+         cfg_(move(cfg)), masterWatch_(move(master_watch)), session_(move(session))
 {
 }
 
@@ -54,7 +56,13 @@ int App::start()
     cout << "Login ok." << endl;
     cout << "Starting sync client..." << endl;
 
+    cout << "priv: " << session_->getPrivilegies() <<endl;
+
     if (session_->getPrivilegies() == PV_ADMIN)
-        master_watch_->start(syc.interval);
+        masterWatch_->start(syc.interval);
+
+    for (;;) {
+        boost::this_thread::sleep(boost::posix_time::seconds(1));
+    }
     return 0;
 }

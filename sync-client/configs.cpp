@@ -33,11 +33,11 @@ ConfigsFile::~ConfigsFile()
 
 string ConfigsFile::readString()
 {
-    string line;
+    char line[255];
     vector<string> out;
 
     while (1) {
-        file_ >> line;
+        file_.getline(line, 255);
         if (line[0] != '#' && line[0] != '/' && line[0] != '\n' && string(line) != "")
             break;
     }

@@ -1,12 +1,14 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
 #include <stdlib.h>
@@ -26,7 +28,7 @@ TcpClient::TcpClient(SOCKET sock)
     client_ = sock;
 }
 
-void TcpClient::Connect(const string &ip, unsigned port)
+void TcpClient::connect(const string &ip, unsigned port)
 {
     int ret_val;
     struct sockaddr_in sock_addr;
@@ -53,7 +55,7 @@ void TcpClient::Connect(const string &ip, unsigned port)
         throw string("Can not connect to server.");
 }
 
-void TcpClient::Send(const void *data, size_t len) const
+void TcpClient::send(const void *data, size_t len) const
 {
     int ret_val = 0;
 
@@ -67,7 +69,7 @@ void TcpClient::Send(const void *data, size_t len) const
     }
 }
 
-void TcpClient::Recv(void *data, size_t len) const
+void TcpClient::recv(void *data, size_t len) const
 {
     int bytes;
 
@@ -76,7 +78,7 @@ void TcpClient::Recv(void *data, size_t len) const
         throw string("Fail receiving data.");
 }
 
-void TcpClient::Close() const
+void TcpClient::close() const
 {
     if (client_ != 0) {
         ::shutdown(client_, 1);

@@ -1,12 +1,15 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
+
 
 #include <functional>
 #include <thread>
@@ -14,7 +17,7 @@
 #include "tcpserver.h"
 
 
-void TcpServer::Start(unsigned port, unsigned max_clients)
+void TcpServer::start(unsigned port, unsigned max_clients)
 {
     int ret_val;
     struct sockaddr_in sock_addr;
@@ -44,18 +47,18 @@ void TcpServer::Start(unsigned port, unsigned max_clients)
     if (ret_val == SOCKET_ERROR)
         throw string("Fail starting listening.");
 
-    ServerStarted();
+    serverStarted();
 
     for (;;) {
         SOCKET client_socket = accept(sock_, NULL, NULL);
 
         if (client_socket == 0) {
-            AcceptError();
+            acceptError();
             continue;
         }
 
         auto client = make_shared<TcpClient>(client_socket);
-        thread th(bind(&TcpServer::NewSession, this, client));
+        thread th(bind(&TcpServer::newSession, this, client));
         th.detach();
     }
 

@@ -1,34 +1,31 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
-#ifndef TCP_CLIENT_H_
-#define TCP_CLIENT_H_
+#ifndef TCP_CLIENT_H
+#define TCP_CLIENT_H
 
 #include <memory>
 
-#ifdef _WIN32
-	#include <Winsock2.h>
-    #include <Windows.h>    
-#else
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <arpa/inet.h>
-    #include <unistd.h>
-    #include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <string.h>
 
-    #define INVALID_SOCKET (SOCKET)(~0)
-    #define SOCKET_ERROR (-1)
-    #define SOCKET int
-#endif
+#define INVALID_SOCKET (SOCKET)(~0)
+#define SOCKET_ERROR (-1)
+#define SOCKET int
 
 using namespace std;
 
@@ -36,10 +33,10 @@ using namespace std;
 class ITcpClient
 {
 public:
-    virtual void Connect(const string &ip, unsigned port)=0;
-    virtual void Send(const void *data, size_t len) const=0;
-    virtual void Recv(void *data, size_t len) const=0;
-    virtual void Close(void) const=0;
+    virtual void connect(const string &ip, unsigned port)=0;
+    virtual void send(const void *data, size_t len) const=0;
+    virtual void recv(void *data, size_t len) const=0;
+    virtual void close(void) const=0;
 };
 
 
@@ -57,7 +54,7 @@ public:
      *
      * throw: error if fail connecting
      */
-    void Connect(const string &ip, unsigned port);
+    void connect(const string &ip, unsigned port);
 
     /**
      * Send data to server
@@ -66,7 +63,7 @@ public:
      *
      * throw: error if fail sending data
      */
-    void Send(const void *data, size_t len) const;
+    void send(const void *data, size_t len) const;
 
     /**
      * Receive data from server
@@ -75,12 +72,12 @@ public:
      *
      * throw: error if fail receiving data
      */
-    void Recv(void *data, size_t len) const;
+    void recv(void *data, size_t len) const;
 
     /*
      * Close connection
      */
-    void Close(void) const;
+    void close(void) const;
 
 private:
     SOCKET client_;

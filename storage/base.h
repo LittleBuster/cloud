@@ -1,16 +1,18 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
-#ifndef BASE_H_
-#define BASE_H_
+#ifndef BASE_H
+#define BASE_H
 
 #include <vector>
 #include <string>
@@ -29,26 +31,26 @@ typedef struct {
 class IUsersBase
 {
 public:
-    virtual void Open(const string &filename)=0;
-    virtual bool Exists(const User &user)=0;
-    virtual bool Verify(const User &user)=0;
-    virtual unsigned GetUserPriv(const User &user)=0;
-    virtual void Close()=0;
+    virtual void open(const string &filename)=0;
+    virtual bool exists(const User &user)=0;
+    virtual bool verify(const User &user)=0;
+    virtual unsigned getUserPriv(const User &user)=0;
+    virtual void close()=0;
 };
 
 
 class UsersBase: public IUsersBase
 {
 public:
-    void Open(const string &filename);
+    void open(const string &filename);
 
-    bool Exists(const User &user);
+    bool exists(const User &user);
 
-    unsigned GetUserPriv(const User &user);
+    unsigned getUserPriv(const User &user);
 
-    bool Verify(const User &user);
+    bool verify(const User &user);
 
-    void Close();
+    void close();
 
 private:
     sqlite3 *base_;
@@ -66,26 +68,26 @@ typedef struct {
 class IFilesBase
 {
 public:
-    virtual void Open(const string &filename)=0;
-    virtual void AddFile(const File &file)=0;
-    virtual bool Exists(const File &file)=0;
-    virtual bool Verify(const File &file)=0;
-    virtual void Close()=0;
+    virtual void open(const string &filename)=0;
+    virtual void addFile(const File &file)=0;
+    virtual bool exists(const File &file)=0;
+    virtual bool verify(const File &file)=0;
+    virtual void close()=0;
 };
 
 
 class FilesBase: public IFilesBase
 {
 public:
-    void Open(const string &filename);
+    void open(const string &filename);
 
-    void AddFile(const File &file);
+    void addFile(const File &file);
 
-    bool Exists(const File &file);
+    bool exists(const File &file);
 
-    bool Verify(const File &file);
+    bool verify(const File &file);
 
-    void Close();
+    void close();
 
 private:
     sqlite3 *base_;

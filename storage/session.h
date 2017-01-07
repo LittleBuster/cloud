@@ -1,16 +1,18 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
-#ifndef SESSION_H_
-#define SESSION_H_
+#ifndef SESSION_H
+#define SESSION_H
 
 #include <mutex>
 
@@ -35,9 +37,9 @@ typedef struct {
 class ISession
 {
 public:
-    virtual void OpenNewSession()=0;
-    virtual void Close()=0;
-    virtual unsigned GetPrivilegies()=0;
+    virtual void openNewSession()=0;
+    virtual void close()=0;
+    virtual unsigned getPrivilegies()=0;
 };
 
 
@@ -47,11 +49,11 @@ public:
     Session(const shared_ptr<ITcpClient> &client, const shared_ptr<IConfigs> &cfg,
             const shared_ptr<IUsersBase> &ub, mutex &mtx);
 
-    void OpenNewSession();
+    void openNewSession();
 
-    void Close();
+    void close();
 
-    unsigned GetPrivilegies();
+    unsigned getPrivilegies();
 
 private:
     const shared_ptr<ITcpClient> client_;
@@ -60,7 +62,7 @@ private:
     unsigned priv_;
     mutex &mtx_;
 
-    inline void SetCurrentPriv(unsigned priv);
+    inline void setCurrentPriv(unsigned priv);
 };
 
 

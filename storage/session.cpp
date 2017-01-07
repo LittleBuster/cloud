@@ -1,12 +1,14 @@
-// Cloud: storage application
-//
-// Copyright (C) 2016 Sergey Denisov.
-// Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public Licence 3
-// as published by the Free Software Foundation; either version 3
-// of the Licence, or (at your option) any later version.
+/*
+ * Cloud: storage application
+ *
+ * Copyright (C) 2016 Sergey Denisov.
+ * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public Licence 3
+ * as published by the Free Software Foundation; either version 3
+ * of the Licence, or (at your option) any later version.
+ */
 
 
 #include <iostream>
@@ -20,14 +22,14 @@ Session::Session(const shared_ptr<ITcpClient> &client, const shared_ptr<IConfigs
 {    
 }
 
-void Session::OpenNewSession()
+void Session::openNewSession()
 {
     User user;
     Command answ;
     LoginInfo info;
-    const auto &ubc = cfg_->GetUsersBaseCfg();
+    const auto &ubc = cfg_->getUsersBaseCfg();
 
-    client_->Recv(&info, sizeof(info));
+    client_->recv(&info, sizeof(info));
 
     user.name = string(info.user);
     user.passwd = string(info.passwd);
@@ -35,40 +37,40 @@ void Session::OpenNewSession()
     cout << "New client connected: " << user.name << endl;
 
     mtx_.lock();
-    ub_->Open(ubc.path);
-    if (!ub_->Exists(user)) {
+    ub_->open(ubc.path);
+    if (!ub_->exists(user)) {
         answ.code = PV_UNKNOWN;
-        client_->Send(&answ, sizeof(answ));
+        client_->send(&answ, sizeof(answ));
         mtx_.unlock();
         throw string("Unknown user.");
     }
-    else if (!ub_->Verify(user)) {
+    else if (!ub_->verify(user)) {
         answ.code = PV_ERROR;
-        client_->Send(&answ, sizeof(answ));
+        client_->send(&answ, sizeof(answ));
         mtx_.unlock();
         throw string("Bad user password.");
     }
     cout << "Authorization ok." << endl;
 
-    answ.code = ub_->GetUserPriv(user);
-    SetCurrentPriv(answ.code);
-    ub_->Close();
+    answ.code = ub_->getUserPriv(user);
+    setCurrentPriv(answ.code);
+    ub_->close();
     mtx_.unlock();
 
-    client_->Send(&answ, sizeof(answ));
+    client_->send(&answ, sizeof(answ));
 }
 
-void Session::Close()
+void Session::close()
 {
-    client_->Close();
+    client_->close();
 }
 
-unsigned Session::GetPrivilegies()
+unsigned Session::getPrivilegies()
 {
     return priv_;
 }
 
-void Session::SetCurrentPriv(unsigned priv)
+void Session::setCurrentPriv(unsigned priv)
 {
     priv_ = priv;
 }

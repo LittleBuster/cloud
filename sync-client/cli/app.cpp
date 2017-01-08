@@ -30,7 +30,7 @@ int App::start()
     string passwd;
 
     cloud_->setLog("cloud.log");
-    if (!cloud_->loadConfigs("sync.cfg"))
+    if (!cloud_->loadConfigs("cloud.cfg"))
         return -1;
 
     cout << "Login:" << endl;

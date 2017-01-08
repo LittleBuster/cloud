@@ -20,9 +20,10 @@
 
 
 App::App(const shared_ptr<ILog> &log, const shared_ptr<Configs> &cfg,
-         const shared_ptr<ITimer> &masterTimer, const shared_ptr<ISession> &session, const shared_ptr<IWatcher> &watcher): log_(move(log)),
+         const shared_ptr<ITimer> &masterTimer, const shared_ptr<ISession> &session,
+         const shared_ptr<IWatcher> &watcher, const shared_ptr<ITimer> &slaveTimer): log_(move(log)),
          cfg_(move(cfg)), masterTimer_(move(masterTimer)), session_(move(session)),
-         watcher_(move(watcher))
+         watcher_(move(watcher)), slaveTimer_(move(slaveTimer))
 {
 }
 
@@ -61,8 +62,7 @@ int App::start()
     if (session_->getPrivilegies() == PV_ADMIN)
         watcher_->setWatcher(masterTimer_);
     else
-        //TODO: add slave timer
-        watcher_->setWatcher(masterTimer_);
+        watcher_->setWatcher(slaveTimer_);
     watcher_->startWatch(syc.interval);
 
     for (;;) {

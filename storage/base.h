@@ -72,6 +72,7 @@ public:
     virtual void addFile(const File &file)=0;
     virtual bool exists(const File &file)=0;
     virtual bool verify(const File &file)=0;
+    virtual vector<File> getFileList()=0;
     virtual void close()=0;
 };
 
@@ -86,6 +87,8 @@ public:
     bool exists(const File &file);
 
     bool verify(const File &file);
+
+    vector<File> getFileList();
 
     void close();
 

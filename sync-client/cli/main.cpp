@@ -18,6 +18,7 @@
 #include "../tcpclient.h"
 #include "../session.h"
 #include "../watcher.h"
+#include "../slavetimer.h"
 
 
 int main()
@@ -28,7 +29,8 @@ int main()
     auto watcher = make_shared<Watcher>();
     auto session = make_shared<Session>(client, cfg);
     auto masterTimer = make_shared<MasterTimer>(log, cfg, client, session);
-    auto app = make_shared<App>(log, cfg, masterTimer, session, watcher);
+    auto slaveTimer = make_shared<SlaveTimer>(log, cfg, client, session);
+    auto app = make_shared<App>(log, cfg, masterTimer, session, watcher, slaveTimer);
 
     return app->start();
 }

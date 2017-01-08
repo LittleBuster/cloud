@@ -19,7 +19,9 @@ enum CmdCodes {
     CMD_SEND_FILE = 100,
     CMD_RECV_FILE = 101,
     CMD_LOGIN = 102,
-    CMD_EXIT = 103
+    CMD_EXIT = 103,
+    CMD_FILES_COUNT = 104,
+    CMD_FILE_INFO = 105
 };
 
 enum AnswCodes {

@@ -29,6 +29,7 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
 {
     Command cmd;
     bool current = true;
+    vector<File> downloadList;
     auto session = make_shared<Session>(client, cfg_, users_base_, mtx_);
 
     while (true) {
@@ -85,8 +86,6 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
                         else
                             cout << "File has depricated." << endl;
                     }
-                    else
-                        cout << "File not found." << endl;
                     current = false;
 
                     files_base_->close();
@@ -115,7 +114,85 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
                 break;
             }
 
+            case CMD_FILES_COUNT: {
+                Command answ;
+                const auto &fbc = cfg_->getFilesBaseCfg();
+
+                try {
+                    mtx_.lock();
+                    files_base_->open(fbc.path);
+                    downloadList = files_base_->getFileList();
+                    files_base_->close();
+                    mtx_.unlock();
+                } catch(const string &err) {
+                    mtx_.unlock();
+                    log_->local("Get file count: " + err, LOG_ERROR);
+                    break;
+                }
+
+                try {
+                    answ.code = downloadList.size();
+                    client->send(&answ, sizeof(answ));
+                } catch(const string &err) {
+                    mtx_.unlock();
+                    log_->local("Get file count: " + err, LOG_ERROR);
+                }
+                break;
+            }
+
+            case CMD_FILE_INFO: {
+                FileInfo info;
+                const auto &fbc = cfg_->getFilesBaseCfg();
+
+                try {
+                    if (downloadList.empty()) {
+                        strcpy(info.filename, "");
+                        info.size = 0;
+                        client->send(&info, sizeof(info));
+                        break;
+                    }
+
+                    const auto curFile = downloadList[downloadList.size()-1];
+
+                    mtx_.lock();
+                    files_base_->open(fbc.path);
+                    if (!files_base_->exists(curFile)) {
+                        strcpy(info.filename, "");
+                        info.size = 0;
+                    } else {
+                        strncpy(info.filename, curFile.filename.c_str(), 254);
+                        info.size = curFile.size;
+                        strncpy(info.modify_time, curFile.modify.c_str(), 50);
+                        strncpy(info.hash, curFile.hash.c_str(), 512);
+                    }
+                    files_base_->close();
+                    mtx_.unlock();
+
+                    client->send(&info, sizeof(info));
+                } catch(const string &err) {
+                    mtx_.unlock();
+                    log_->local("File info: " + err, LOG_ERROR);
+                }
+                break;
+            }
+
             case CMD_RECV_FILE: {
+                const auto &syc = cfg_->getSyncCfg();
+
+                if (downloadList.empty()) {
+                    log_->local("Files for downloading not found.", LOG_ERROR);
+                    break;
+                }
+                const auto curFile = downloadList[downloadList.size()-1];
+
+                try {
+                    cout << "Sending file: " << curFile.filename << endl;
+                    FileSender fs(syc.path + curFile.filename, curFile.size);
+                    fs.upload(client);
+                } catch(const string &err) {
+                    log_->local("Receiving file: " + err, LOG_ERROR);
+                }
+                downloadList.pop_back();
                 break;
             }
 
@@ -137,10 +214,10 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
 
 void CloudStorage::acceptError() const
 {
-
+    log_->local("Accepting client error.", LOG_WARNING);
 }
 
 void CloudStorage::serverStarted() const
 {
-
+    cout << "Cloud server was started." << endl;
 }

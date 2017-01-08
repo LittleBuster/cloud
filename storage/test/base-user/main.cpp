@@ -27,7 +27,7 @@ int main()
     }
 
     User user;
-    user.name = "test";
+    user.name = "adm";
     user.passwd = "123";
 
     try {
@@ -66,7 +66,7 @@ int main()
         cout << err << endl;
     }
 
-    user.name = "test";
+    user.name = "adm";
     user.passwd = "321";
     try {
         if (!ub->Verify(user))

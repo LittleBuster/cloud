@@ -196,6 +196,37 @@ bool FilesBase::verify(const File &file)
     return data.result;
 }
 
+static int FileListCb(void *data, int argc, char **argv, char **col_name)
+{
+    File file;
+    vector<File> *files = reinterpret_cast<vector<File> *>(data);
+
+    file.filename = string(argv[1]);
+    file.size = static_cast<unsigned long>(atoi(argv[2]));
+    file.modify = string(argv[3]);
+    file.hash = string(argv[4]);
+
+    files->push_back(file);
+    return 0;
+}
+
+vector<File> FilesBase::getFileList()
+{
+    int ret_val;
+    char *err_msg = 0;
+    vector<File> files;
+
+    string sql = "SELECT * FROM files";
+
+    ret_val = sqlite3_exec(base_, sql.c_str(), FileListCb, reinterpret_cast<void*>(&files), &err_msg);
+    if (ret_val != SQLITE_OK) {
+        string err(err_msg);
+        sqlite3_free(err_msg);
+        throw string("FilesBase filelist: " + err);
+    }
+    return files;
+}
+
 void FilesBase::close()
 {
     sqlite3_close(base_);

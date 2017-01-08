@@ -1,7 +1,7 @@
 /*
  * Cloud: sync client application
  *
- * Copyright (C) 2016 Sergey Denisov.
+ * Copyright (C) 2016-2017 Sergey Denisov.
  * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -29,6 +29,10 @@ SlaveTimer::SlaveTimer(const shared_ptr<ILog> &log, const shared_ptr<IConfigs> &
                      const shared_ptr<ITcpClient> &client, const shared_ptr<ISession> &session):
                      log_(move(log)), cfg_(move(cfg)), client_(move(client)), session_(move(session))
 {
+    BOOST_ASSERT(log != nullptr);
+    BOOST_ASSERT(cfg != nullptr);
+    BOOST_ASSERT(client != nullptr);
+    BOOST_ASSERT(session != nullptr);
 }
 
 void SlaveTimer::handler()

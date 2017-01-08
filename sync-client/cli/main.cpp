@@ -1,7 +1,7 @@
 /*
  * Cloud: sync client application
  *
- * Copyright (C) 2016 Sergey Denisov.
+ * Copyright (C) 2016-2017 Sergey Denisov.
  * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -11,26 +11,13 @@
  */
 
 #include "app.h"
-#include "../log.h"
-#include "../configs.h"
-#include "../timer.h"
-#include "../mastertimer.h"
-#include "../tcpclient.h"
-#include "../session.h"
-#include "../watcher.h"
-#include "../slavetimer.h"
+#include "../cloud.h"
 
 
 int main()
 {
-    auto log = make_shared<Log>();
-    auto cfg = make_shared<Configs>();
-    auto client = make_shared<TcpClient>();
-    auto watcher = make_shared<Watcher>();
-    auto session = make_shared<Session>(client, cfg);
-    auto masterTimer = make_shared<MasterTimer>(log, cfg, client, session);
-    auto slaveTimer = make_shared<SlaveTimer>(log, cfg, client, session);
-    auto app = make_shared<App>(log, cfg, masterTimer, session, watcher, slaveTimer);
+    auto cloud = make_shared<Cloud>();
+    auto app = make_shared<App>(cloud);
 
-    return app->start();
+    app->start();
 }

@@ -1,7 +1,7 @@
 /*
- * Cloud: storage application
+ * Cloud: sync client application
  *
- * Copyright (C) 2016 Sergey Denisov.
+ * Copyright (C) 2016-2017 Sergey Denisov.
  * Written by Sergey Denisov aka LittleBuster (DenisovS21@gmail.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -22,6 +22,8 @@
 Session::Session(const shared_ptr<ITcpClient> &client, const shared_ptr<IConfigs> &cfg): client_(move(client)),
                  cfg_(move(cfg))
 {
+    BOOST_ASSERT(client != nullptr);
+    BOOST_ASSERT(cfg != nullptr);
 }
 
 void Session::login(const string &login, const string &passwd)

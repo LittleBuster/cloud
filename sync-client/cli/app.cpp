@@ -12,8 +12,8 @@
 
 
 #include <iostream>
+#include <thread>
 
-#include <boost/thread.hpp>
 #include <boost/assert.hpp>
 
 #include "app.h"
@@ -43,7 +43,7 @@ int App::start()
     cloud_->start();
 
     for (;;) {
-        boost::this_thread::sleep(boost::posix_time::seconds(1));
+        this_thread::sleep_for(1s);
     }
     return 0;
 }

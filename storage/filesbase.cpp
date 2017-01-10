@@ -10,6 +10,7 @@
  * of the Licence, or (at your option) any later version.
  */
 
+#include <memory>
 
 #include "filesbase.h"
 

@@ -239,29 +239,26 @@ void CloudStorage::cleanFiles(const vector<string> &files)
     const auto &fbc = cfg_->getFilesBaseCfg();
     const auto &syc = cfg_->getSyncCfg();
 
-    auto removeFile = [](const File &localFile, const vector<string> &uploadedFiles) {
-        bool f = false;
-
+    auto existsFile = [](const File &localFile, const vector<string> &uploadedFiles) {
         for (const auto &filename : uploadedFiles) {
             if (filename == localFile.filename) {
-                f = true;
-                break;
+                return true;
             }
         }
-
-        if (!f) {
-            string path = syc.path + localFile.filename;
-            filesBase_->removeFile(localFile);
-            remove(path.c_str());
-        }
+        return false;
     };
 
     mtx_.lock();
     filesBase_->open(fbc.path);
     const auto localFiles = filesBase_->getFileList();
 
-    for (const auto &file : localFiles)
-        removeFile(file, files);
+    for (const auto &file : localFiles) {
+        if (!existsFile(file, files)) {
+            string fullPath = syc.path + file.filename;
+            filesBase_->removeFile(file);
+            remove(fullPath.c_str());
+        }
+    }
 
     filesBase_->close();
     mtx_.unlock();

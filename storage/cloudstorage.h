@@ -19,7 +19,8 @@
 #include "tcpserver.h"
 #include "configs.h"
 #include "log.h"
-#include "base.h"
+#include "filesbase.h"
+#include "usersbase.h"
 
 
 typedef struct {

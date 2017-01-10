@@ -18,7 +18,8 @@
 
 #include "configs.h"
 #include "tcpclient.h"
-#include "base.h"
+#include "usersbase.h"
+#include "filesbase.h"
 
 
 typedef enum {

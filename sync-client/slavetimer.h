@@ -18,7 +18,6 @@
 #include "configs.h"
 #include "filehash.h"
 #include "tcpclient.h"
-#include "filetransfer.h"
 #include "session.h"
 #include "timer.h"
 

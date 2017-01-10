@@ -15,16 +15,17 @@
 #include "log.h"
 #include "configs.h"
 #include "cloudstorage.h"
-#include "base.h"
+#include "filesbase.h"
+#include "usersbase.h"
 
 
 int main()
 {
     auto log = make_shared<Log>();
     auto cfg = make_shared<Configs>();
-    auto users_base = make_shared<UsersBase>();
-    auto files_base = make_shared<FilesBase>();
-    auto storage = make_shared<CloudStorage>(cfg, log, users_base, files_base);
+    auto usersBase = make_shared<UsersBase>();
+    auto filesBase = make_shared<FilesBase>();
+    auto storage = make_shared<CloudStorage>(cfg, log, usersBase, filesBase);
     auto app = make_shared<App>(log, cfg, storage);
 
     return app->start();

@@ -4,6 +4,10 @@ CONFIG -= app_bundle qt
 
 LIBS += -lsqlite3 -lpthread
 
-SOURCES += *.cpp
+SOURCES += *.cpp \
+    filesbase.cpp \
+    usersbase.cpp
 
-HEADERS += *.h
+HEADERS += *.h \
+    filesbase.h \
+    usersbase.h

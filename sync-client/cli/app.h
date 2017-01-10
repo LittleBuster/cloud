@@ -11,8 +11,8 @@
  */
 
 
-#ifndef APP_H_
-#define APP_H_
+#ifndef APP_H
+#define APP_H
 
 #include "../cloud.h"
 

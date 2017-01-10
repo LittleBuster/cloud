@@ -22,6 +22,7 @@
 #include "network.h"
 #include "mastertimer.h"
 #include "filehash.h"
+#include "filesender.h"
 
 namespace fs = boost::filesystem;
 
@@ -84,12 +85,18 @@ void MasterTimer::handler()
                 cout << "Sending: " + file.filename().string() << endl;
                 fs.upload(client_);
             }
-        }
-        catch (const string &err) {
+        } catch (const string &err) {
             log_->local(err, LOG_ERROR);
             continue;
         }
     }
+    try {
+        cmd.code = CMD_CLEAN;
+        client_->send(&cmd, sizeof(cmd));
+    } catch (const string &err) {
+        log_->local("Clean files: " + err, LOG_ERROR);
+    }
+
     session_->close();
 
     timer_->expires_at(timer_->expires_at() + boost::posix_time::seconds(delay_));

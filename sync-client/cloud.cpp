@@ -13,14 +13,14 @@
 #include <iostream>
 
 #include "cloud.h"
-#include "../log.h"
-#include "../configs.h"
-#include "../timer.h"
-#include "../mastertimer.h"
-#include "../tcpclient.h"
-#include "../session.h"
-#include "../watcher.h"
-#include "../slavetimer.h"
+#include "log.h"
+#include "configs.h"
+#include "timer.h"
+#include "mastertimer.h"
+#include "tcpclient.h"
+#include "session.h"
+#include "watcher.h"
+#include "slavetimer.h"
 
 
 Cloud::Cloud()

@@ -40,16 +40,16 @@ public:
 class CloudStorage final: public ICloudStorage, public TcpServer
 {
 public:
-    CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log, const shared_ptr<IUsersBase> &users_base,
-                 const shared_ptr<IFilesBase> &files_base);
+    CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log, const shared_ptr<IUsersBase> &usersBase,
+                 const shared_ptr<IFilesBase> &filesBase);
 
     void start(unsigned port, unsigned max_clients) override final { TcpServer::start(port, max_clients); }
 
 private:
     const shared_ptr<IConfigs> cfg_;
     const shared_ptr<ILog> log_;
-    const shared_ptr<IUsersBase> users_base_;
-    const shared_ptr<IFilesBase> files_base_;
+    const shared_ptr<IUsersBase> usersBase_;
+    const shared_ptr<IFilesBase> filesBase_;
     mutex mtx_;
 
     virtual void newSession(shared_ptr<ITcpClient> client) override final;
@@ -57,6 +57,8 @@ private:
     virtual void acceptError() const override final;
 
     virtual void serverStarted() const override final;
+
+    void cleanFiles(const vector<string> &files);
 };
 
 

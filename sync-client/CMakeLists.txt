@@ -7,7 +7,7 @@ include_directories("..")
 set(CMAKE_CXX_COMPILER g++)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -march=native -Wall -O2")
-set(SRC_LIST ../session.cpp ../filetransfer.cpp ../watcher.cpp ../mastertimer.cpp ../slavetimer.cpp ../configs.cpp ../log.cpp ../tcpclient.cpp ../filehash.cpp ../cloud.cpp)
+set(SRC_LIST session.cpp filesender.cpp watcher.cpp mastertimer.cpp slavetimer.cpp configs.cpp log.cpp tcpclient.cpp filehash.cpp cloud.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST})
 

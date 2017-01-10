@@ -13,15 +13,18 @@
 
 #include <iostream>
 
+#include <unistd.h>
+
 #include "cloudstorage.h"
-#include "filetransfer.h"
+#include "filesender.h"
+#include "filereceiver.h"
 #include "network.h"
 #include "session.h"
 
 
-CloudStorage::CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log, const shared_ptr<IUsersBase> &users_base, const shared_ptr<IFilesBase> &files_base):
-                           cfg_(move(cfg)), log_(move(log)), users_base_(move(users_base)),
-                           files_base_(move(files_base))
+CloudStorage::CloudStorage(const shared_ptr<IConfigs> &cfg, const shared_ptr<ILog> &log, const shared_ptr<IUsersBase> &usersBase, const shared_ptr<IFilesBase> &filesBase):
+                           cfg_(move(cfg)), log_(move(log)), usersBase_(move(usersBase)),
+                           filesBase_(move(filesBase))
 {
 }
 
@@ -30,7 +33,8 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
     Command cmd;
     bool current = true;
     vector<File> downloadList;
-    auto session = make_shared<Session>(client, cfg_, users_base_, mtx_);
+    vector<string> uploadedList;
+    auto session = make_shared<Session>(client, cfg_, usersBase_, mtx_);
 
     while (true) {
         try {
@@ -72,11 +76,13 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
                     file.modify = string(info.modify_time);
                     file.hash = string(info.hash);
 
+                    uploadedList.push_back(file.filename);
+
                     mtx_.lock();
-                    files_base_->open(fbc.path);
-                    if (files_base_->exists(file)) {
-                        if (files_base_->verify(file)) {
-                            files_base_->close();
+                    filesBase_->open(fbc.path);
+                    if (filesBase_->exists(file)) {
+                        if (filesBase_->verify(file)) {
+                            filesBase_->close();
                             mtx_.unlock();
 
                             answ.code = ANSW_NOTHING;
@@ -88,7 +94,7 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
                     }
                     current = false;
 
-                    files_base_->close();
+                    filesBase_->close();
                     mtx_.unlock();
 
                     answ.code = ANSW_NEED_UPLOAD;
@@ -102,10 +108,10 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
                     fr.download(client);
 
                     mtx_.lock();
-                    files_base_->open(fbc.path);
-                    files_base_->addFile(file);
-                    files_base_->close();
-                    mtx_.unlock();
+                    filesBase_->open(fbc.path);
+                    filesBase_->addFile(file);
+                    filesBase_->close();
+                    mtx_.unlock();                    
                 }
                 catch (const string &err) {
                     mtx_.unlock();
@@ -120,9 +126,9 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
 
                 try {
                     mtx_.lock();
-                    files_base_->open(fbc.path);
-                    downloadList = files_base_->getFileList();
-                    files_base_->close();
+                    filesBase_->open(fbc.path);
+                    downloadList = filesBase_->getFileList();
+                    filesBase_->close();
                     mtx_.unlock();
                 } catch(const string &err) {
                     mtx_.unlock();
@@ -155,8 +161,8 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
                     const auto curFile = downloadList[downloadList.size()-1];
 
                     mtx_.lock();
-                    files_base_->open(fbc.path);
-                    if (!files_base_->exists(curFile)) {
+                    filesBase_->open(fbc.path);
+                    if (!filesBase_->exists(curFile)) {
                         strcpy(info.filename, "");
                         info.size = 0;
                     } else {
@@ -165,7 +171,7 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
                         strncpy(info.modify_time, curFile.modify.c_str(), 50);
                         strncpy(info.hash, curFile.hash.c_str(), 512);
                     }
-                    files_base_->close();
+                    filesBase_->close();
                     mtx_.unlock();
 
                     client->send(&info, sizeof(info));
@@ -187,12 +193,19 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
 
                 try {
                     cout << "Sending file: " << curFile.filename << endl;
+
                     FileSender fs(syc.path + curFile.filename, curFile.size);
                     fs.upload(client);
                 } catch(const string &err) {
                     log_->local("Receiving file: " + err, LOG_ERROR);
                 }
                 downloadList.pop_back();
+                break;
+            }
+
+            case CMD_CLEAN: {
+                cleanFiles(uploadedList);
+                uploadedList.clear();
                 break;
             }
 
@@ -206,7 +219,6 @@ void CloudStorage::newSession(shared_ptr<ITcpClient> client)
                     cout << "Client [USER] disconnected." << endl;
                 session->close();
                 return;
-                break;
             }
         }
     }
@@ -220,4 +232,37 @@ void CloudStorage::acceptError() const
 void CloudStorage::serverStarted() const
 {
     cout << "Cloud server was started." << endl;
+}
+
+void CloudStorage::cleanFiles(const vector<string> &files)
+{
+    const auto &fbc = cfg_->getFilesBaseCfg();
+    const auto &syc = cfg_->getSyncCfg();
+
+    auto removeFile = [](const File &localFile, const vector<string> &uploadedFiles) {
+        bool f = false;
+
+        for (const auto &filename : uploadedFiles) {
+            if (filename == localFile.filename) {
+                f = true;
+                break;
+            }
+        }
+
+        if (!f) {
+            string path = syc.path + localFile.filename;
+            filesBase_->removeFile(localFile);
+            remove(path.c_str());
+        }
+    };
+
+    mtx_.lock();
+    filesBase_->open(fbc.path);
+    const auto localFiles = filesBase_->getFileList();
+
+    for (const auto &file : localFiles)
+        removeFile(file, files);
+
+    filesBase_->close();
+    mtx_.unlock();
 }

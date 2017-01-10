@@ -21,6 +21,7 @@
 #include "network.h"
 #include "slavetimer.h"
 #include "filehash.h"
+#include "filereceiver.h"
 
 namespace fs = boost::filesystem;
 

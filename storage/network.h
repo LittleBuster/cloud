@@ -21,7 +21,8 @@ enum CmdCodes {
     CMD_LOGIN = 102,
     CMD_EXIT = 103,
     CMD_FILES_COUNT = 104,
-    CMD_FILE_INFO = 105
+    CMD_FILE_INFO = 105,
+    CMD_CLEAN = 106
 };
 
 enum AnswCodes {
@@ -29,7 +30,6 @@ enum AnswCodes {
     ANSW_NEED_UPLOAD,
     ANSW_LOGIN_OK
 };
-
 
 typedef struct {
     unsigned code;
